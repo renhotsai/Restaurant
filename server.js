@@ -325,10 +325,11 @@ app.get('/CancelOrder/:id', async (req, res) => {
                 canceledDate: new Date(),
             }
             await orderFromDb.updateOne(updatedValues);
-            return redirect("/Order");
+            return res.redirect('/Order');
         }
     } catch (error) {
-
+        console.log(error);
+        return res.redirect("/")
     }
 });
 

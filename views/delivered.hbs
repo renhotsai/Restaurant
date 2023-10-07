@@ -1,0 +1,21 @@
+<main>
+    {{#if orderList}}
+    <div class="order">
+        <p>Order Id: {{orderList.order._id}}</p>
+        <p>Order Time: {{orderList.order.orderDate}}</p>
+        <p>Amount: {{orderList.amount}}</p>
+        <p>TAX: {{orderList.tax}}</p>
+        <p>Total Amount: {{orderList.totalAmount}}</p>
+
+        <form action="/Delivered/{{orderList.order._id}}" method="post" enctype="multipart/form-data">
+            <label for="photo">Upload your Image</label>
+            <input type="file" name="photo" id="photo" />
+            <br>
+            <button type="submit">Delivered</button>
+        </form>
+    </div>
+    {{#if ErrorMsg}}
+    <p>{{ErrorMsg}}</p>
+    {{/if}}
+    {{/if}}
+</main>

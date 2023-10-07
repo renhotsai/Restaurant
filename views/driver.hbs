@@ -1,0 +1,24 @@
+<main>
+    {{#if ErrorMsg}}
+    <p>{{ErrorMsg}}</p>
+    {{/if}}
+    {{#if orderList}}
+    {{#each orderList}}
+    <div class="order">
+        <p>Order Id: {{this.order._id}}</p>
+        <p>Order Time: {{this.order.orderDate}}</p>
+        <p>Amount: {{this.amount}}</p>
+        <p>TAX: {{this.tax}}</p>
+        <p>Total Amount: {{this.totalAmount}}</p>
+
+        {{#if isReady}}
+        <a href="/PickOrder/{{this.order._id}}">IN TRANSIT</a>
+        {{/if}}
+        {{#if isTransit }}
+        <p>Picked Time: {{this.order.pickUpDate}}</p>
+        <a href="/Delivered/{{this.order._id}}">DELIVERED</a>
+        {{/if}}
+    </div>
+    {{/each}}
+    {{/if}}
+</main>

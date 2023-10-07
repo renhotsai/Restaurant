@@ -1,0 +1,16 @@
+<main>
+    <h1>Login</h1>
+    {{#if ErrorMsg}}
+    <p>{{ErrorMsg}}</p>
+    {{/if}}
+    <form action="/Login" method="post">
+        <label for="userId">User Id: </label>
+        <input type="text" name="userId" id="userId">
+
+        <br>
+        <label for="password">Password: </label>
+        <input type="password" name="password" id="password">
+        <br>
+        <button type="submit">Login</button>
+    </form>
+</main>

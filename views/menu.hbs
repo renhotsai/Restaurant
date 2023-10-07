@@ -1,0 +1,54 @@
+<main>
+    <h1>Menu</h1>
+    <div class="menuList">
+        {{#each menuList}}
+        <div class="product">
+            <p>{{this.product}}</p>
+            <p>{{this.description}}</p>
+            <p>{{this.price}}</p>
+            <a href="/AddOrder/{{this._id}}">Add Order</a>
+        </div>
+        {{/each}}
+    </div>
+</main>
+{{#if orderList}}
+<section>
+    <h1>Your Order</h1>
+    <div class="order">
+            <table class="orderDetailList">
+                <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Items</th>
+                    <th>Action</th>
+                </tr>
+                {{#each orderList.orderInfos}}
+                    <tr>
+                        <td>
+                            <p>
+                                {{this.productName}}
+                            </p>
+                        </td>
+                        <td>
+                            <p>
+                                {{this.productPrice}}
+                            </p>
+                        </td>
+                        <td>
+                            <p>
+                                {{this.orderItems}}
+                            </p>
+                        </td>
+                        <td>
+                            <a href="/DelItem/{{this.orderDetailId}}">Remove</a>
+                        </td>
+                    </tr>
+                {{/each}}
+            </table>
+        <p>Amount: {{orderList.amount}}</p>
+        <p>TAX: {{orderList.tax}}</p>
+        <p>Total Amount: {{orderList.totalAmount}}</p>
+        <a href="/SubmitOrder/{{orderList.order._id}}">Submit</a>
+    </div>
+</section>
+{{/if}}

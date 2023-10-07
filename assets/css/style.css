@@ -1,0 +1,62 @@
+header>ul {
+    display: flex;
+    justify-content: space-between;
+    list-style-type: none;
+}
+main{
+    height: 50vh;
+}
+
+a {
+    text-decoration: none;
+}
+
+.menuList{
+    /* border: 1px black solid; */
+    display: flex;
+    flex-wrap: wrap;
+    padding: 5px;
+    justify-content: center;
+}
+
+
+.product {
+    /* border: 1px red solid; */
+    display: flex;
+    flex-wrap: wrap;
+    margin: 10px;
+    flex-direction: column;
+    width: 200px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
+  }
+  
+  .product > p {
+    /* border: 1px blue solid; */
+    margin: 5px;
+  }
+  
+  .product > a {
+    color: black;
+    background-color: aqua;
+    width: 100px;
+    margin: 10px auto;
+    text-align: center;
+  }
+  
+
+  .order{
+    /* border: 1px greenyellow solid; */
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
+  }
+
+  .orderDetailList{
+    /* border: 1px orange solid; */
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  table, th, td {
+    /* border: 1px solid black; 设置边框宽度和颜色 */
+    padding: 8px; /* 设置单元格内边距，以增加内容与边框之间的距离 */
+    text-align: start;
+}

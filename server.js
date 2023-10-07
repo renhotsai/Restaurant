@@ -7,7 +7,7 @@ const path = require('path');
 app.use(express.urlencoded({
     extended: true
 }))
-app.use(express.static('assets/css'));
+app.use(express.static('assets'));
 
 // npm install express-session
 
@@ -18,6 +18,18 @@ app.use(session({
     saveUninitialized: true,
     // cookie: { secure: true }
 }))
+
+//npm install --save multer
+const multer = require('multer');
+const myStorage = multer.diskStorage({
+    destination: './assets/deliveredPhotos/',
+    filename: function (req, file, cb) {
+        cb(null, `${req.params.id}${path.extname(file.originalname)}`)
+    }
+});
+const upload = multer({ storage: myStorage })
+app.use(express.static('./public/'))
+
 
 //npm install express-handlebars
 const exphbs = require('express-handlebars');
@@ -67,6 +79,7 @@ const Order = new Schema({
     pickUpDate: Date,
     deliveryDate: Date,
     canceledDate: Date,
+    deliveryImg: String,
 });
 
 const order = mongoose.model('order', Order);
@@ -132,7 +145,6 @@ const createOrderList = async (orderId) => {
             const driverFromDb = await driver.findOne({ _id: orderFromDb.driverId });
             if (driverFromDb === null) {
                 console.log(`Can't Find driver. _id:${orderFromDb.driverId}`);
-                return redirect("/");
             }
             orderList.driverName = driverFromDb.name;
         }
@@ -159,18 +171,15 @@ const createOrderList = async (orderId) => {
             default:
                 break;
         }
-
         return orderList;
     } catch (error) {
         console.log(error);
-        return res.redirect("/")
     }
 }
 
 
 
 app.get('/', (req, res) => {
-    console.log(req.session);
     return res.render("index", {
         layout: "layout",
         isLoggedIn: req.session.isLoggedIn,
@@ -272,7 +281,6 @@ app.get('/SubmitOrder/:id', async (req, res) => {
             orderDate: new Date(),
         }
         const result = await orderFromDb.updateOne(updatedValues)
-        console.log(result);
         return res.redirect("/Order");
     } catch (error) {
         console.log(error);
@@ -292,7 +300,6 @@ app.get('/Order', async (req, res) => {
                     orderList.push(await createOrderList(order._id))
                 }
             }
-            console.log(orderList);
             return res.render("order", {
                 layout: "layout",
                 isLoggedIn: req.session.isLoggedIn,
@@ -339,7 +346,6 @@ app.get('/Driver', ensureLogin, async (req, res) => {
     try {
         const statusesToFind = [2, 3];
         const orderFromDb = await order.find({ status: { $in: statusesToFind } }).lean().exec();
-        console.log(orderFromDb);
         if (orderFromDb.length !== 0) {
             const orderList = [];
             for (const order of orderFromDb) {
@@ -347,7 +353,6 @@ app.get('/Driver', ensureLogin, async (req, res) => {
                     orderList.push(await createOrderList(order._id))
                 }
             }
-            console.log(orderList);
             return res.render("driver", {
                 layout: "layout",
                 isLoggedIn: req.session.isLoggedIn,
@@ -369,6 +374,8 @@ app.get('/Driver', ensureLogin, async (req, res) => {
 
 app.get('/PickOrder/:id', ensureLogin, async (req, res) => {
     try {
+        console.log(req.params.id);
+
         const orderFromDb = await order.findOne({ _id: req.params.id });
         const updatedValues = {
             status: 3,
@@ -386,13 +393,38 @@ app.get('/PickOrder/:id', ensureLogin, async (req, res) => {
 
 app.get('/Delivered/:id', ensureLogin, async (req, res) => {
     try {
+        const orderId = req.params.id;
+        const orderList = await createOrderList(orderId);
+        return res.render("delivered", {
+            layout: "layout",
+            orderList: orderList,
+        });
+    } catch (error) {
+        console.log(error);
+        return res.redirect("/")
+    }
+});
+
+app.post('/Delivered/:id', upload.single('photo'), async (req, res) => {
+    try {
         const orderFromDb = await order.findOne({ _id: req.params.id });
+        if (req.file === undefined) {
+            console.log(`photo not provided with form data`);
+            return res.render("delivered", {
+                layout: "layout",
+                orderList: await createOrderList(orderFromDb._id),
+                ErrorMsg: "No Photo."
+            });
+        }
+        const formFile = req.file;
+
         const updatedValues = {
             status: 4,
             deliveryDate: new Date(),
+            deliveryImg: formFile.filename
         }
         await orderFromDb.updateOne(updatedValues);
-        return res.redirect("/Driver");
+        return res.redirect('/Driver');
     } catch (error) {
         console.log(error);
         return res.redirect("/")
@@ -411,7 +443,6 @@ app.get('/Login', (req, res) => {
 
 app.post('/Login', async (req, res) => {
     try {
-        console.log(req.session);
         if (!req.session.isLoggedIn) {
             const userId = req.body.userId;
             const password = req.body.password;
@@ -442,7 +473,6 @@ app.post('/Login', async (req, res) => {
 
             req.session.user = user;
             req.session.isLoggedIn = true;
-            console.log(req.session);
             return res.redirect("/Driver");
         }
     } catch (error) {
@@ -496,7 +526,6 @@ app.post('/SignUp', async (req, res) => {
 });
 
 app.get('/Logout', ensureLogin, (req, res) => {
-    console.log(req.session);
     req.session.destroy()
     return res.redirect("/")
 });

@@ -77,7 +77,6 @@ const Toppings = new Schema({
     name: String,
     price: Number
 }) 
-
 const toppings = mongoose.model('topping', Toppings 
 )
 

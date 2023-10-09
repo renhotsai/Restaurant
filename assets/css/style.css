@@ -11,39 +11,6 @@ a {
     text-decoration: none;
 }
 
-.menuList{
-    /* border: 1px black solid; */
-    display: flex;
-    flex-wrap: wrap;
-    padding: 5px;
-    justify-content: center;
-}
-
-
-.product {
-    /* border: 1px red solid; */
-    display: flex;
-    flex-wrap: wrap;
-    margin: 10px;
-    flex-direction: column;
-    width: 200px;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
-  }
-  
-  .product > p {
-    /* border: 1px blue solid; */
-    margin: 5px;
-  }
-  
-  .product > a {
-    color: black;
-    background-color: aqua;
-    width: 100px;
-    margin: 10px auto;
-    text-align: center;
-  }
-  
-
   .order{
     /* border: 1px greenyellow solid; */
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);

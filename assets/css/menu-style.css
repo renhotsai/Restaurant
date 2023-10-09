@@ -1,0 +1,34 @@
+.menuList {
+  /* border: 1px black solid; */
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(23em, 1fr));
+  grid-template-rows: repeat(auto-fit, minmax(23em, 1fr));
+  grid-gap: 2em;
+  justify-items: center;
+  align-items: center;
+  padding: 5px;
+}
+
+.product {
+  /* border: 1px red solid; */
+  display: flex;
+  flex-wrap: wrap;
+  margin: 10px;
+  flex-direction: column;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
+}
+
+.product img {
+  width: 100%;
+  height: 100%;
+  max-width: 50vw;
+  max-height: 50vh;
+  object-fit: cover; 
+  aspect-ratio: 4/3;
+  object-position: center; 
+}
+
+.product a {
+  background-color: #41c065;
+  color: #202124;
+}

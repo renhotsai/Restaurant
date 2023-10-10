@@ -91,13 +91,43 @@ const orderDetail = mongoose.model("orderDetail", OrderDetail);
 
 // Order Model
 const Order = new Schema({
-  status: Number,
-  driverId: String,
-  orderDate: Date,
-  pickUpDate: Date,
-  deliveryDate: Date,
-  canceledDate: Date,
-  deliveryImg: String,
+  status: {
+    type: String,
+    enum: ["RECEIVED", "READY FOR DELIVERY", "IN TRANSIT", "DELIVERED"],
+    required: true,
+  },
+  customerName: {
+    type: String,
+    required: true,
+  },
+  deliveryAddress: {
+    type: String,
+    required: true,
+  },
+  orderDate: {
+    type: Date,
+    default: Date.now,
+  },
+  driver: {
+    name: String,
+    licensePlate: String,
+  },
+  deliveredPhoto: String,
+  orderItems: [
+    {
+      productName: String,
+      quantity: Number,
+      price: Number,
+    },
+  ],
+  orderItemsCount: {
+    type: Number,
+    default: 0,
+  },
+  orderTotal: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const order = mongoose.model("order", Order);
@@ -333,54 +363,48 @@ app.get("/SubmitOrder/:id", async (req, res) => {
   }
 });
 
-//order
-app.get("/Order", async (req, res) => {
+// order
+app.get("/order", async (req, res) => {
   try {
-    const orderFromDb = await order
+    const allOrders = await order
       .find()
       .sort({ orderDate: -1 })
       .lean()
       .exec();
-    if (orderFromDb.length !== 0) {
-      const orderList = [];
-      for (const order of orderFromDb) {
-        if (order.status !== 0) {
-          orderList.push(await createOrderList(order._id));
-        }
-      }
-      return res.render("order", {
-        layout: "layout",
-        isLoggedIn: req.session.isLoggedIn,
-        orderList: orderList,
-      });
-    } else {
-      return res.render("order", {
-        layout: "layout",
-        isLoggedIn: req.session.isLoggedIn,
-        ErrorMsg: "No Order History",
-      });
-    }
+
+    const orderHistory = allOrders.filter((order) => order.status === "DELIVERED");
+    const currentOrders = allOrders.filter((order) => order.status !== "DELIVERED");
+
+    res.render("order", {
+      layout: "layout",
+      isLoggedIn: req.session.isLoggedIn,
+      allOrders: allOrders,
+      orderHistory: orderHistory,
+      currentOrders: currentOrders,
+    });
   } catch (error) {
     console.log(error);
-    return res.redirect("/");
+    res.redirect("/");
   }
 });
 
-app.get("/CancelOrder/:id", async (req, res) => {
+app.get("/order/:orderId", async (req, res) => {
   try {
-    const orderId = req.params.id;
-    const orderFromDb = await order.findOne({ _id: orderId });
-    if (orderFromDb !== null) {
-      const updatedValues = {
-        status: -1,
-        canceledDate: new Date(),
-      };
-      await orderFromDb.updateOne(updatedValues);
-      return res.redirect("/Order");
-    }
+    const orderId = req.params.orderId;
+
+    const orderInfo = await order
+      .findOne({ _id: orderId })
+      .lean()
+      .exec();
+
+    res.render("orderDetail", {
+      layout: "layout",
+      isLoggedIn: req.session.isLoggedIn,
+      orderInfo: orderInfo,
+    });
   } catch (error) {
     console.log(error);
-    return res.redirect("/");
+    res.redirect("/");
   }
 });
 

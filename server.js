@@ -71,14 +71,14 @@ const Product = new Schema({
   image_url: String,
 });
 const product = mongoose.model("product", Product);
+let itemForCart = null;
 
-// Toppings Model 
+// Toppings Model
 const Toppings = new Schema({
-    name: String,
-    price: Number
-}) 
-const toppings = mongoose.model('topping', Toppings 
-)
+  name: String,
+  price: Number,
+});
+const topping = mongoose.model("topping", Toppings);
 
 // OrderDetail Model
 
@@ -212,6 +212,21 @@ app.get("/Menu", async (req, res) => {
   try {
     const menuList = await product.find().lean().exec();
     const orderFromDb = await order.findOne({ status: 0 }).lean().exec();
+      const toppings = await topping.find().lean().exec();
+
+    if (itemForCart !== null) {
+      item = itemForCart;
+      itemForCart = null;
+
+      return res.render("menu", {
+        layout: "layout",
+        isLoggedIn: req.session.isLoggedIn,
+        menuList: menuList,
+        item,
+        toppings,
+      });
+    }
+
     if (orderFromDb !== null) {
       const pendingOrder = await createOrderList(orderFromDb._id);
       return res.render("menu", {
@@ -226,6 +241,16 @@ app.get("/Menu", async (req, res) => {
       isLoggedIn: req.session.isLoggedIn,
       menuList: menuList,
     });
+  } catch (error) {
+    console.log(error);
+    return res.redirect("/");
+  }
+});
+
+app.get("/Add-to-cart/:id", async (req, res) => {
+  try {
+    itemForCart = await product.findOne({ _id: req.params.id }).lean().exec();
+    return res.redirect("/Menu");
   } catch (error) {
     console.log(error);
     return res.redirect("/");

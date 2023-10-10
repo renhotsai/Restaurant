@@ -7,6 +7,9 @@
   <link rel="stylesheet" href="/css/style.css" />
   <link rel="stylesheet" href="/css/menu-style.css" />
   <link rel="stylesheet" href="/css/order-style.css" />
+  {{#if cssName}}
+    <link rel="stylesheet" href="/css/{{cssName}}" />
+  {{/if}}
   <script src="/js/menu.js" defer></script>
 </head>
 

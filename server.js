@@ -508,6 +508,7 @@ app.get("/Login", (req, res) => {
   return res.render("login", {
     layout: "layout",
     isLoggedIn: req.session.isLoggedIn,
+    cssName:"login-style.css"
   });
 });
 
@@ -559,6 +560,7 @@ app.get("/SignUp", (req, res) => {
   return res.render("signUp", {
     layout: "layout",
     isLoggedIn: req.session.isLoggedIn,
+    cssName:"login-style.css",
   });
 });
 

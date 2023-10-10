@@ -41,7 +41,7 @@
 }
 
 .product p{
-  text-align: justify;
+  text-align: center;
   font-style:italic;
   font-size: 1.2em;
 }
@@ -54,7 +54,7 @@
   text-align: center;
   text-transform: capitalize;
   font-weight: bold;
-  font-size: 1.2em;
+  font-size: 1.3em;
     border-radius: 2em;
 
 }
@@ -70,3 +70,21 @@
     background-color: #202124;
 
 }
+
+.order{
+    border: 1px greenyellow solid;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
+    background-color: #41c065;
+  }
+
+  .orderDetailList{
+    /* border: 1px orange solid; */
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  table, th, td {
+    padding: 8px; 
+    text-align: start;
+}
+

@@ -8,50 +8,76 @@
           <h3>{{this.product}}</h3>
           <p>{{this.description}}</p>
           <p>{{this.price}}</p>
-          <a href="/AddOrder/{{this._id}}">Add To Cart</a>
+          <a href="/Add-to-cart/{{this._id}}">Add To Cart</a>
         </figcaption>
       </figure>
     {{/each}}
   </div>
-</main>
-{{#if orderList}}
-  <section>
-    <h1>Your Order</h1>
-    <div class="order">
-      <table class="orderDetailList">
-        <tr>
-          <th>Product</th>
-          <th>Price</th>
-          <th>Items</th>
-          <th>Action</th>
-        </tr>
-        {{#each orderList.orderInfos}}
-          <tr>
-            <td>
-              <p>
-                {{this.productName}}
-              </p>
-            </td>
-            <td>
-              <p>
-                {{this.productPrice}}
-              </p>
-            </td>
-            <td>
-              <p>
-                {{this.orderItems}}
-              </p>
-            </td>
-            <td>
-              <a href="/DelItem/{{this.orderDetailId}}">Remove</a>
-            </td>
-          </tr>
+
+  {{#if item}}
+    <div class="add-to-cart-container">
+      <h3>{{item.product}}</h3>
+      <p>Ingredients: {{item.ingredients}}</p>
+      <form action="">
+        <label>Choose Size: </label>
+        {{#each item.prices}}
+            <label>
+      <input type="radio" required name="size" value="{{@key}}">
+      {{@key}}: ${{this}}
+    </label>
         {{/each}}
-      </table>
-      <p>Amount: {{orderList.amount}}</p>
-      <p>TAX: {{orderList.tax}}</p>
-      <p>Total Amount: {{orderList.totalAmount}}</p>
-      <a href="/SubmitOrder/{{orderList.order._id}}">Submit</a>
+
+        <p>Choose Toppings: </p>
+        {{#each toppings}}
+        <label>
+      <input type="checkbox" required name="toppings" value="{{this.name}}">
+      {{this.name}}: ${{this.price}}
+    </label>
+        {{/each}}
+      </form>
+
     </div>
-  </section>
-{{/if}}
+  {{/if}}
+
+  {{#if orderList}}
+    <div>
+      <h1>Your Order</h1>
+      <div class="order">
+        <table class="orderDetailList">
+          <tr>
+            <th>Product</th>
+            <th>Price</th>
+            <th>Items</th>
+            <th>Action</th>
+          </tr>
+          {{#each orderList.orderInfos}}
+            <tr>
+              <td>
+                <p>
+                  {{this.productName}}
+                </p>
+              </td>
+              <td>
+                <p>
+                  {{this.productPrice}}
+                </p>
+              </td>
+              <td>
+                <p>
+                  {{this.orderItems}}
+                </p>
+              </td>
+              <td>
+                <a href="/DelItem/{{this.orderDetailId}}">Remove</a>
+              </td>
+            </tr>
+          {{/each}}
+        </table>
+        <p>Amount: {{orderList.amount}}</p>
+        <p>TAX: {{orderList.tax}}</p>
+        <p>Total Amount: {{orderList.totalAmount}}</p>
+        <a href="/SubmitOrder/{{orderList.order._id}}">Submit</a>
+      </div>
+    </div>
+  {{/if}}
+</main>

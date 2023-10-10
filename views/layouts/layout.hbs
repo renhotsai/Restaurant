@@ -1,31 +1,32 @@
 <html lang="en">
 
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Restaurant</title>
-    <link rel="stylesheet" href="/css/style.css" />
-    <link rel="stylesheet" href="/css/menu-style.css" />
-    <script src="/js/menu.js" defer></script>
-  </head>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Restaurant</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/menu-style.css" />
+  <link rel="stylesheet" href="/css/order-style.css" />
+  <script src="/js/menu.js" defer></script>
+</head>
 
-  <body>
-    <header>
-      <ul>
-        <li><a href="/">Home</a></li>
-        {{#if isLoggedIn}}
-          <li><a href="/Driver">Driver</a></li>
-          <li><a href="/Logout">LogOut</a></li>
-        {{else}}
-          <li><a href="/Menu">Menu</a></li>
-          <li><a href="/Order">Order</a></li>
-          <li><a href="/Login">Login</a></li>
-          <li><a href="/Signup">SignUp</a></li>
-        {{/if}}
-      </ul>
-    </header>
-    {{{body}}}
-    <footer></footer>
-  </body>
+<body>
+  <header>
+    <ul>
+      <li><a href="/">Home</a></li>
+      {{#if isLoggedIn}}
+      <li><a href="/Driver">Driver</a></li>
+      <li><a href="/Logout">LogOut</a></li>
+      {{else}}
+      <li><a href="/Menu">Menu</a></li>
+      <li><a href="/Order">Order</a></li>
+      <li><a href="/Login">Login</a></li>
+      <li><a href="/Signup">SignUp</a></li>
+      {{/if}}
+    </ul>
+  </header>
+  {{{body}}}
+  <footer></footer>
+</body>
 
 </html>

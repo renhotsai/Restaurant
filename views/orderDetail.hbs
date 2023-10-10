@@ -1,0 +1,56 @@
+<body>
+    <h1>Order Detail</h1>
+    <table>
+        <tr>
+            <th>Customer Name</th>
+            <td>{{ orderInfo.customerName }}</td>
+        </tr>
+        <tr>
+            <th>Delivery Address</th>
+            <td>{{ orderInfo.deliveryAddress }}</td>
+        </tr>
+        <tr>
+            <th>Order Date</th>
+            <td>{{ orderInfo.orderInfoDate }}</td>
+        </tr>
+        <tr>
+            <th>Order Status</th>
+            <td>{{ orderInfo.status }}</td>
+        </tr>
+        <tr>
+            <th>Order Total</th>
+            <td>{{ orderInfo.orderTotal }}</td>
+        </tr>
+        <tr>
+            <th>Driver Name</th>
+            <td>{{ orderInfo.driver.name }}</td>
+        </tr>
+        <tr>
+            <th>Driver License Plate</th>
+            <td>{{ orderInfo.driver.licensePlate }}</td>
+        </tr>
+        <!-- Add more details as needed -->
+    </table>
+
+    <h2>Order Items</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Product Name</th>
+                <th>Quantity</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each orderInfo.orderItems}}
+            <tr>
+                <td>{{ this.productName }}</td>
+                <td>{{ this.quantity }}</td>
+                <td>{{ this.price }}</td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+
+    <a href="/order">Back to order</a>
+</body>

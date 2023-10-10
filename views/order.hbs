@@ -1,83 +1,63 @@
-<main>
-    <h1>Your Order</h1>
-    {{#if ErrorMsg}}
-    <p>{{ErrorMsg}}</p>
-    {{/if}}
-    {{#if orderList}}
-    {{#each orderList}}
-    <div class="order">
-        <p>Order Id: {{this.order._id}}</p>
-        <table class="orderDetailList">
-            <tr>
-                <th>Product</th>
-                <th>Price</th>
-                <th>Items</th>
-            </tr>
-            {{#each this.orderInfos}}
-            <tr>
-                <td>
-                    <p>
-                        {{this.productName}}
-                    </p>
-                </td>
-                <td>
-                    <p>
-                        {{this.productPrice}}
-                    </p>
-                </td>
-                <td>
-                    <p>
-                        {{this.orderItems}}
-                    </p>
-                </td>
-            </tr>
-            {{/each}}
-        </table>
-        <p>Amount: {{this.amount}}</p>
-        <p>TAX: {{this.tax}}</p>
-        <p>Total Amount: {{this.totalAmount}}</p>
-        {{#if isCanceled}}
-        <p>Status: Canceled</p>
-        {{/if}}
-
-        {{#if isInCart}}
-        <p>Status: IN CART</p>
-        {{/if}}
-
-        {{#if isReceived }}
-        <p>Status: RECEIVED</p>
-        <a href="/CancelOrder/{{this.order._id}}">Cancel Order</a>
-        {{/if}}
-
-        {{#if isReady}}
-        <p>Status: READY FOR DELIVERY</p>
-        {{/if}}
-
-        {{#if isTransit }}
-        <p>Status: IN TRANSIT</p>
-        {{/if}}
-
-        {{#if isDelivered}}
-        <p>Status: DELIVERED</p>
-        {{#if this.order.deliveryImg}}
-        <img src="/deliveredPhotos/{{this.order.deliveryImg}}" alt="{{this.order.deliveryImg}}">
-        {{/if}}
-        {{/if}}
-        <p>Order Time: {{this.order.orderDate}}</p>
-
-        {{#if this.order.canceledDate}}
-        <p>Canceled Date:{{this.order.canceledDate}}</p>
-        {{/if}}
-        {{#if this.order.pickUpDate}}
-        <p>Driver: {{this.driverName}}</p>
-        {{/if}}
-
-        {{#if this.order.deliveryDate}}
-        <p>Delivery Time : {{this.order.deliveryDate}}</p>
-        {{else}}
-        <p>Picked Up Time : {{this.order.orderDate}}</p>
-        {{/if}}
+<body>
+    <h1>Order Management</h1>
+    <h2>Current Orders</h2>
+    <div class="order-container">
+        {{#each currentOrders}}
+        <div class="order-card">
+            <div class="order-header">
+                <div class="left-column">
+                    <p><strong>Order ID #</strong> {{ this._id }}</p>
+                </div>
+                <div class="right-column">
+                    <p><strong>Status:</strong> <span class="order-status">{{ this.status }}</span></p>
+                </div>
+            </div>
+            <div class="order-details">
+                <div class="left-column">
+                    <p><strong>Customer Name:</strong> {{ this.customerName }}</p>
+                    <p><strong>Delivery Address:</strong> {{ this.deliveryAddress }}</p>
+                    <p><strong>Order Date:</strong> {{ this.orderDate }}</p>
+                    <p><strong>Order Total:</strong> ${{ this.orderTotal }}</p>
+                </div>
+                <div class="right-column">
+                    <div class="action-buttons">
+                        <a href="/order/{{ this._id }}" class="view-details-button">View Details</a>
+                        <button class="cancel-button" data-orderid="{{ this._id }}">Cancel Order</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{/each}}
     </div>
-    {{/each}}
-    {{/if}}
-</main>
+
+    <h2>Order History</h2>
+    <div class="order-container">
+        {{#each orderHistory}}
+        <div class="order-card">
+            <div class="order-header">
+                <div class="left-column">
+                    <p><strong>Order ID:</strong> {{ this._id }}</p>
+                    <p><strong>Order Date:</strong> {{ this.orderDate }}</p>
+                </div>
+                <div class="right-column">
+                    <p><strong>Status:</strong> <span class="order-status">{{ this.status }}</span></p>
+                </div>
+            </div>
+            <div class="order-details">
+                <div class="left-column">
+                    <p><strong>Customer Name:</strong> {{ this.customerName }}</p>
+                    <p><strong>Delivery Address:</strong> {{ this.deliveryAddress }}</p>
+                    <p><strong>Order Date:</strong> {{ this.orderDate }}</p>
+                    <p><strong>Order Total:</strong> ${{ this.orderTotal }}</p>
+                </div>
+                <div class="right-column">
+                    <div class="action-buttons">
+                        <a href="/order/{{ this._id }}" class="view-details-button">View Details</a>
+                        <button class="cancel-button" data-orderid="{{ this._id }}">Cancel Order</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+</body>

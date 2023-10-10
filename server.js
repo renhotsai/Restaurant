@@ -203,6 +203,7 @@ const createOrderList = async (orderId) => {
 app.get("/", (req, res) => {
   return res.render("index", {
     layout: "layout",
+    user: req.session.user,
     isLoggedIn: req.session.isLoggedIn,
   });
 });
@@ -380,12 +381,14 @@ app.get("/Driver", ensureLogin, async (req, res) => {
       return res.render("driver", {
         layout: "layout",
         isLoggedIn: req.session.isLoggedIn,
+        user: req.session.user,
         orderList: orderList,
       });
     } else {
       return res.render("driver", {
         layout: "layout",
         isLoggedIn: req.session.isLoggedIn,
+        user: req.session.user.name,
         ErrorMsg: "No Order",
       });
     }

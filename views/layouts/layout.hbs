@@ -16,11 +16,13 @@
             {{#if isLoggedIn}}
             <li><a href="/Driver">Driver</a></li>
             <li><a href="/Logout">LogOut</a></li>
+            <li><span class="userName">{{user.name}}</span></li>
             {{else}}
             <li><a href="/Menu">Menu</a></li>
             <li><a href="/Order">Order</a></li>
             <li><a href="/Login">Login</a></li>
             <li><a href="/Signup">SignUp</a></li>
+            <li><span class="userName">Customer</span></li>
             {{/if}}
         </ul>
     </header>

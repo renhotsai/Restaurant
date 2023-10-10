@@ -10,20 +10,3 @@ main{
 a {
     text-decoration: none;
 }
-
-  .order{
-    /* border: 1px greenyellow solid; */
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
-  }
-
-  .orderDetailList{
-    /* border: 1px orange solid; */
-    border-collapse: collapse;
-    width: 100%;
-  }
-
-  table, th, td {
-    /* border: 1px solid black; 设置边框宽度和颜色 */
-    padding: 8px; /* 设置单元格内边距，以增加内容与边框之间的距离 */
-    text-align: start;
-}

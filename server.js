@@ -153,10 +153,7 @@ const ensureLogin = (req, res, next) => {
     // if user has logged in allow them to go to desired endpoint
     next();
   } else {
-    return res.render("login", {
-      errorMsg: "You must login first to access dashboard",
-      layout: false,
-    });
+    return res.redirect("/login")
   }
 };
 

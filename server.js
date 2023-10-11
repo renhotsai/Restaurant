@@ -132,14 +132,20 @@ const Order = new Schema({
 
 const order = mongoose.model("order", Order);
 
-// Driver
-const Driver = new Schema({
+// User
+const User = new Schema({
   name: String,
   userId: String,
   password: String,
+  licensePlate: String,
+  role: {
+    type: String,
+    enum: ["RESTAURANT", "DRIVER"],
+    required: true,
+  },
 });
 
-const driver = mongoose.model("driver", Driver);
+const user = mongoose.model("user", User);
 
 //method
 
@@ -192,7 +198,7 @@ const createOrderList = async (orderId) => {
       totalAmount: totalAmount,
     };
     if (orderFromDb.status === 3 || orderFromDb.status === 4) {
-      const driverFromDb = await driver.findOne({ _id: orderFromDb.driverId });
+      const driverFromDb = await user.findOne({ _id: orderFromDb.driverId });
       if (driverFromDb === null) {
         console.log(`Can't Find driver. _id:${orderFromDb.driverId}`);
       }
@@ -538,8 +544,8 @@ app.post("/Login", async (req, res) => {
           ErrorMsg: "User Id / Password is empty",
         });
       }
-      const user = await driver.findOne({ userId: userId }).lean().exec();
-      if (user === null) {
+      const userFromDb = await user.findOne({ userId: userId }).lean().exec();
+      if (userFromDb === null) {
         return res.render("login", {
           layout: "layout",
           isLoggedIn: req.session.isLoggedIn,
@@ -547,7 +553,7 @@ app.post("/Login", async (req, res) => {
         });
       }
 
-      if (password !== user.password) {
+      if (password !== userFromDb.password) {
         return res.render("login", {
           layout: "layout",
           isLoggedIn: req.session.isLoggedIn,
@@ -555,7 +561,7 @@ app.post("/Login", async (req, res) => {
         });
       }
 
-      req.session.user = user;
+      req.session.user = userFromDb;
       req.session.isLoggedIn = true;
       return res.redirect("/Driver");
     }
@@ -573,41 +579,47 @@ app.get("/SignUp", (req, res) => {
   });
 });
 
+const checkStatus = (str) => {
+  if (str === "" ||
+    str === undefined ||
+    str === null) {
+    return true;
+  } else { return false; }
+}
+
+
+
 app.post("/SignUp", async (req, res) => {
   try {
     const userId = req.body.userId;
     const password = req.body.password;
     const name = req.body.name;
-    if (
-      userId === "" ||
-      userId === undefined ||
-      password === "" ||
-      password === undefined ||
-      name === "" ||
-      name === undefined
-    ) {
+    const licensePlate = req.body.licensePlate;
+    if (checkStatus(userId) || checkStatus(password) || checkStatus(name) || checkStatus(licensePlate)) {
       return res.render("signUp", {
         layout: "layout",
         isLoggedIn: req.session.isLoggedIn,
         ErrorMsg: "User Id / Password is empty",
       });
     }
-    const user = await driver.find({ userId: userId }).lean().exec();
-    if (user.length !== 0) {
+    const userFromDb = await user.find({ userId: userId }).lean().exec();
+    if (userFromDb.length !== 0) {
       return res.render("signUp", {
         layout: "layout",
         isLoggedIn: req.session.isLoggedIn,
         ErrorMsg: "UserId has been used.",
       });
     }
-    const newDriver = new driver({
+    const newUser = new user({
       userId: userId,
       password: password,
       name: name,
+      licensePlate:licensePlate,
+      role: "DRIVER"
     });
-    await newDriver.save();
+    await newUser.save();
 
-    req.session.user = newDriver;
+    req.session.user = newUser;
     req.session.isLoggedIn = true;
 
     return res.redirect("/Driver");

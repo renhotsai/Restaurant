@@ -1,5 +1,5 @@
-<main>
-  <h1>Menu</h1>
+<main class="menu-main">
+  <h1 class="menu-title">Menu</h1>
   <div class="menuList">
     {{#each menuList}}
       <figure class="product">
@@ -15,27 +15,36 @@
   </div>
 
   {{#if item}}
-    <div class="add-to-cart-container">
-      <h3>{{item.product}}</h3>
-      <p>Ingredients: {{item.ingredients}}</p>
-      <form action="">
-        <label>Choose Size: </label>
-        {{#each item.prices}}
+    <div class="popup-container" id="popup">
+
+      <div class="add-to-cart-container">
+        <h3>{{item.product}}</h3>
+        <p>Ingredients: {{item.ingredients}}</p>
+        <form action="">
+          <label>Choose Size: </label>
+          {{#each item.prices}}
             <label>
-      <input type="radio" required name="size" value="{{@key}}">
-      {{@key}}: ${{this}}
-    </label>
-        {{/each}}
+              <input type="radio" required name="size" value="{{@key}}" />
+              {{@key}}: ${{this}}
+            </label>
+          {{/each}}
 
-        <p>Choose Toppings: </p>
-        {{#each toppings}}
-        <label>
-      <input type="checkbox" required name="toppings" value="{{this.name}}">
-      {{this.name}}: ${{this.price}}
-    </label>
-        {{/each}}
-      </form>
+          <p>Choose Toppings: </p>
+          {{#each toppings}}
+            <label>
+              <input
+                type="checkbox"
+                required
+                name="toppings"
+                value="{{this.name}}"
+              />
+              {{this.name}}: ${{this.price}}
+            </label>
+          {{/each}}
+          <button type="submit">Add to Cart</button>
+        </form>
 
+      </div>
     </div>
   {{/if}}
 

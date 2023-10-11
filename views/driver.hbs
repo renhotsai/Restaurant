@@ -1,10 +1,8 @@
 <main>
-    <h1>READY FOR DELIVERY</h1>
-    {{#if ErrorMsg}}
-    <p>{{ErrorMsg}}</p>
-    {{/if}}
-    {{#if orderList}}
-    {{#each orderList}}
+    <h1>Driver Delivery</h1>
+    <h2>READY FOR DELIVERY</h2>
+    {{#if readyDelivery}}
+    {{#each readyDelivery}}
     <div class="order">
         <p>Order Id: {{this.order._id}}</p>
         <p>Order Time: {{this.order.orderDate}}</p>
@@ -21,5 +19,30 @@
         {{/if}}
     </div>
     {{/each}}
+    {{else}}
+    <p>No Order</p>
+    {{/if}}
+    <hr>
+    <h2>IN TRANSIT</h2>
+    {{#if inTransit}}
+    {{#each inTransit}}
+    <div class="order">
+        <p>Order Id: {{this.order._id}}</p>
+        <p>Order Time: {{this.order.orderDate}}</p>
+        <p>Amount: {{this.amount}}</p>
+        <p>TAX: {{this.tax}}</p>
+        <p>Total Amount: {{this.totalAmount}}</p>
+
+        {{#if isReady}}
+        <a href="/PickOrder/{{this.order._id}}">IN TRANSIT</a>
+        {{/if}}
+        {{#if isTransit }}
+        <p>Picked Time: {{this.order.pickUpDate}}</p>
+        <a href="/Delivered/{{this.order._id}}">DELIVERED</a>
+        {{/if}}
+    </div>
+    {{/each}}
+    {{else}}
+    <p>No Order</p>
     {{/if}}
 </main>

@@ -242,7 +242,7 @@ app.get("/Menu", async (req, res) => {
   try {
     const menuList = await product.find().lean().exec();
     const orderFromDb = await order.findOne({ status: 0 }).lean().exec();
-      const toppings = await topping.find().lean().exec();
+    const toppings = await topping.find().lean().exec();
 
     if (itemForCart !== null) {
       item = itemForCart;
@@ -426,16 +426,28 @@ app.get("/Driver", ensureLogin, async (req, res) => {
           orderList.push(await createOrderList(order._id));
         }
       }
+
+      //split status to two list
+      const readyDelivery = [];
+      const inTransit = [];
+      for (const order of orderList) {
+        if (order.order.status === 2) {
+          readyDelivery.push(order);
+        } else {
+          inTransit.push(order);
+        }
+      }
+
       return res.render("driver", {
         layout: "layout",
         isLoggedIn: req.session.isLoggedIn,
-        orderList: orderList,
+        readyDelivery: readyDelivery,
+        inTransit: inTransit,
       });
     } else {
       return res.render("driver", {
         layout: "layout",
         isLoggedIn: req.session.isLoggedIn,
-        ErrorMsg: "No Order",
       });
     }
   } catch (error) {
@@ -508,7 +520,7 @@ app.get("/Login", (req, res) => {
   return res.render("login", {
     layout: "layout",
     isLoggedIn: req.session.isLoggedIn,
-    cssName:"login-style.css"
+    cssName: "login-style.css"
   });
 });
 
@@ -560,7 +572,7 @@ app.get("/SignUp", (req, res) => {
   return res.render("signUp", {
     layout: "layout",
     isLoggedIn: req.session.isLoggedIn,
-    cssName:"login-style.css",
+    cssName: "login-style.css",
   });
 });
 

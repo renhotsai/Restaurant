@@ -394,7 +394,12 @@ app.get("/AddOrder/:id", async (req, res) => {
 // order
 app.get("/order", ensureLogin, async (req, res) => {
   try {
-    const allOrders = await order.find().sort({ orderDate: -1 }).lean().exec();
+    let allOrders;
+    if (req.session.user.role === "CUSTOMER") {
+      allOrders = await order.find({ customerName: req.session.user.name }).sort({ orderDate: -1 }).lean().exec();
+    } else if(req.session.user.role === "RESTAURANT"){
+      allOrders = await order.find().sort({ orderDate: -1 }).lean().exec();
+    }
     let orderHistory = [];
     let currentOrders = [];
     let searchResults = [];

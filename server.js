@@ -404,7 +404,10 @@ app.get("/order", async (req, res) => {
     allOrders.forEach((order) => {
       if (order.status === "DELIVERED") {
         order.isDelivered = true;
-      } else {
+      } else if (order.status === "CANCELED") {
+        order.isCancelable = false;
+      }
+      else {
         order.isCancelable = true;
       }
     });
@@ -475,9 +478,6 @@ app.post("/cancelOrder/:orderId", async (req, res) => {
         status: "CANCELED",
       };
       await orderFromDb.updateOne(updatedValues);
-
-      // Update the isCancelable property
-      orderFromDb.isCancelable = false;
 
       return res.redirect("/order");
     } else {

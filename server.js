@@ -24,7 +24,7 @@ app.use(
 //npm install --save multer
 const multer = require("multer");
 const myStorage = multer.diskStorage({
-  destination: "./assets/deliveredPhotos/",
+  destination: "./assets/image/deliveredPhotos/",
   filename: function (req, file, cb) {
     cb(null, `${req.params.id}${path.extname(file.originalname)}`);
   },
@@ -41,6 +41,7 @@ app.set("view engine", ".hbs");
 const mongoose = require("mongoose");
 const fs = require("fs");
 const { log } = require("console");
+const { listenerCount } = require("process");
 
 const CONNECTION_STRING =
   "mongodb+srv://dbUser:123123123@cluster0.xtldzp8.mongodb.net/restaurant?retryWrites=true&w=majority";
@@ -116,9 +117,12 @@ const Order = new Schema({
     userId: String,
     password: String,
     licensePlate: String,
+    vehicleModel: String,
+    color: String,
+    address: String,
     role: {
       type: String,
-      enum: ["RESTAURANT", "DRIVER"],
+      enum: ["RESTAURANT", "DRIVER", "CUSTOMER"],
       required: true,
     }
   },
@@ -148,9 +152,12 @@ const User = new Schema({
   userId: String,
   password: String,
   licensePlate: String,
+  vehicleModel: String,
+  color: String,
+  address: String,
   role: {
     type: String,
-    enum: ["RESTAURANT", "DRIVER"],
+    enum: ["RESTAURANT", "DRIVER", "CUSTOMER"],
     required: true,
   },
 });
@@ -275,14 +282,12 @@ app.get("/", async (req, res) => {
       featuredItem: featuredItem,
       isDriver: req.session.isDriver,
       isRestaurant: req.session.isRestaurant,
+      isCustomer: req.session.isCustomer,
     });
   } catch {
     console.log(error);
     return res.redirect("/");
   }
-
-
-
 });
 
 //menu
@@ -299,6 +304,8 @@ app.get("/Menu", async (req, res) => {
         layout: "layout",
         isDriver: req.session.isDriver,
         isRestaurant: req.session.isRestaurant,
+        isCustomer: req.session.isCustomer,
+        isCustomer: req.session.isCustomer,
         menuList: menuList,
         item,
         toppings,
@@ -309,6 +316,7 @@ app.get("/Menu", async (req, res) => {
       layout: "layout",
       isDriver: req.session.isDriver,
       isRestaurant: req.session.isRestaurant,
+      isCustomer: req.session.isCustomer,
       menuList: menuList,
     });
   } catch (error) {
@@ -444,6 +452,7 @@ app.get("/order", async (req, res) => {
       layout: "layout",
       isDriver: req.session.isDriver,
       isRestaurant: req.session.isRestaurant,
+      isCustomer: req.session.isCustomer,
       allOrders: allOrders,
       orderHistory: orderHistory,
       currentOrders: currentOrders,
@@ -464,6 +473,7 @@ app.get("/order/:orderId", async (req, res) => {
       layout: "layout",
       isDriver: req.session.isDriver,
       isRestaurant: req.session.isRestaurant,
+      isCustomer: req.session.isCustomer,
       orderInfo: orderInfo,
     });
   } catch (error) {
@@ -506,6 +516,7 @@ app.get("/Driver", ensureLogin, async (req, res) => {
         layout: "layout",
         isDriver: req.session.isDriver,
         isRestaurant: req.session.isRestaurant,
+        isCustomer: req.session.isCustomer,
         readyDelivery: readyDelivery,
         inTransit: inTransit,
       });
@@ -514,6 +525,7 @@ app.get("/Driver", ensureLogin, async (req, res) => {
         layout: "layout",
         isDriver: req.session.isDriver,
         isRestaurant: req.session.isRestaurant,
+        isCustomer: req.session.isCustomer,
       });
     }
   } catch (error) {
@@ -539,10 +551,6 @@ app.get("/PickOrder/:id", ensureLogin, async (req, res) => {
   }
 });
 
-
-
-
-
 app.get("/Delivered/:id", ensureLogin, async (req, res) => {
   try {
     const orderId = req.params.id;
@@ -552,6 +560,7 @@ app.get("/Delivered/:id", ensureLogin, async (req, res) => {
       orderList: orderList,
       isDriver: req.session.isDriver,
       isRestaurant: req.session.isRestaurant,
+      isCustomer: req.session.isCustomer,
       jsName: "delivered.js",
     });
   } catch (error) {
@@ -571,6 +580,7 @@ app.post("/Delivered/:id", upload.single("photo"), async (req, res) => {
         ErrorMsg: "No Photo.",
         isDriver: req.session.isDriver,
         isRestaurant: req.session.isRestaurant,
+        isCustomer: req.session.isCustomer,
       });
     }
     const formFile = req.file;
@@ -587,6 +597,24 @@ app.post("/Delivered/:id", upload.single("photo"), async (req, res) => {
   }
 });
 
+
+app.get('/DriverHistory', async (req, res) => {
+  try {
+    const history = await order.find({ 'driver._id': req.session.user._id ,status:"DELIVERED"}).lean().exec();
+    console.log(history);
+    return res.render("driverHistory", {
+      layout: "layout",
+      isDriver: req.session.isDriver,
+      isRestaurant: req.session.isRestaurant,
+      isCustomer: req.session.isCustomer,
+      history: history,
+    })
+  } catch (error) {
+    console.log(error);
+    return res.redirect("/");
+  }
+});
+
 //Login /SignUp
 
 app.get("/Login", (req, res) => {
@@ -594,6 +622,7 @@ app.get("/Login", (req, res) => {
     layout: "layout",
     isDriver: req.session.isDriver,
     isRestaurant: req.session.isRestaurant,
+    isCustomer: req.session.isCustomer,
     cssName: "login-style.css",
   });
 });
@@ -608,6 +637,7 @@ app.post("/Login", async (req, res) => {
           layout: "layout",
           isDriver: req.session.isDriver,
           isRestaurant: req.session.isRestaurant,
+          isCustomer: req.session.isCustomer,
           ErrorMsg: "User Id / Password is empty",
           cssName: "login-style.css",
         });
@@ -618,6 +648,7 @@ app.post("/Login", async (req, res) => {
           layout: "layout",
           isDriver: req.session.isDriver,
           isRestaurant: req.session.isRestaurant,
+          isCustomer: req.session.isCustomer,
           ErrorMsg: "User Id / Password is Error",
           cssName: "login-style.css",
         });
@@ -628,6 +659,7 @@ app.post("/Login", async (req, res) => {
           layout: "layout",
           isDriver: req.session.isDriver,
           isRestaurant: req.session.isRestaurant,
+          isCustomer: req.session.isCustomer,
           ErrorMsg: "User Id / Password is Error",
           cssName: "login-style.css",
         });
@@ -639,9 +671,13 @@ app.post("/Login", async (req, res) => {
       }
       if (userFromDb.role === "DRIVER") {
         req.session.isDriver = true;
+        return res.redirect("/Driver");
       }
-      // console.log(JSON.stringify(req.session));
-      return res.redirect("/Driver");
+      if (userFromDb.role === "CUSTOMER") {
+        console.log();
+        req.session.isCustomer = true;
+        return res.redirect("/Menu")
+      }
     }
   } catch (error) {
     console.log(error);
@@ -654,7 +690,9 @@ app.get("/SignUp", (req, res) => {
     layout: "layout",
     isDriver: req.session.isDriver,
     isRestaurant: req.session.isRestaurant,
+    isCustomer: req.session.isCustomer,
     cssName: "login-style.css",
+    jsName: "signup.js",
   });
 });
 
@@ -664,26 +702,42 @@ app.post("/SignUp", async (req, res) => {
     const password = req.body.password;
     const name = req.body.name;
     const licensePlate = req.body.licensePlate;
-    if (
-      checkStatus(userId) ||
-      checkStatus(password) ||
-      checkStatus(name) ||
-      checkStatus(licensePlate)
-    ) {
+    const phone = req.body.phone;
+    const address = req.body.address;
+    const userType = req.body.user;
+    const vehicleModel = req.body.vehicleModel;
+    const color = req.body.color;
+    console.log(JSON.stringify(req.body));
+    if (checkStatus(userId) || checkStatus(password) || checkStatus(name) || checkStatus(phone)) {
       return res.render("signUp", {
         layout: "layout",
         isDriver: req.session.isDriver,
         isRestaurant: req.session.isRestaurant,
+        isCustomer: req.session.isCustomer,
         cssName: "login-style.css",
-        ErrorMsg: "User Id / Password is empty",
+        ErrorMsg: "Some info are empty",
       });
     }
+
+    if ((userType === "CUSTOMER" && checkStatus(address)) ||
+      (userType === "DRIVER" && (checkStatus(licensePlate) || checkStatus(vehicleModel) || checkStatus(color)))) {
+      return res.render("signUp", {
+        layout: "layout",
+        isDriver: req.session.isDriver,
+        isRestaurant: req.session.isRestaurant,
+        isCustomer: req.session.isCustomer,
+        cssName: "login-style.css",
+        ErrorMsg: "Some info are empty",
+      });
+    }
+
     const userFromDb = await user.find({ userId: userId }).lean().exec();
     if (userFromDb.length !== 0) {
       return res.render("signUp", {
         layout: "layout",
         isDriver: req.session.isDriver,
         isRestaurant: req.session.isRestaurant,
+        isCustomer: req.session.isCustomer,
         cssName: "login-style.css",
         ErrorMsg: "UserId has been used.",
       });
@@ -692,14 +746,25 @@ app.post("/SignUp", async (req, res) => {
       userId: userId,
       password: password,
       name: name,
-      licensePlate: licensePlate,
-      role: "DRIVER",
+      role: userType,
     });
+    if (userType === "CUSTOMER") {
+      newUser.address = address;
+    }
+    if (userType === "DRIVER") {
+      newUser.licensePlate = licensePlate;
+      newUser.vehicleModel = vehicleModel;
+      newUser.color = color;
+    }
     await newUser.save();
-
     req.session.user = newUser;
-    req.session.isDriver = true;
-    return res.redirect("/Driver");
+    if (newUser.role === "DRIVER") {
+      req.session.isDriver = true;
+    }
+    if (newUser.role === "CUSTOMER") {
+      req.session.isCustomer = true;
+    }
+    return res.redirect("/");
   } catch (error) {
     console.log(error);
     return res.redirect("/");

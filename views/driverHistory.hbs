@@ -1,0 +1,28 @@
+<main>
+    <h1>Driver Delivery</h1>
+    </div>
+    {{#if history}}
+    <h2>Driver History</h2>
+    <div class="order-container">
+        {{#each history}}
+        <div class="order-card">
+            <div class="order-header">
+                <div class="left-column">
+                    <p><strong>Order ID #</strong> {{ this._id }}</p>
+                </div>
+                <div class="right-column">
+                    <p><strong>Status:</strong> <span class="order-status">{{ this.status }}</span></p>
+                </div>
+            </div>
+            <div class="order-details">
+                <div class="left-column">
+                    <p><strong>Customer Name:</strong> {{ this.customerName }}</p>
+                    <p><strong>Delivery Address:</strong> {{ this.deliveryAddress }}</p>
+                    <p><strong>Order Total:</strong> ${{ this.orderTotal }}</p>
+                </div>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+    {{/if}}
+</main>

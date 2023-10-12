@@ -124,7 +124,7 @@ const Order = new Schema({
       type: String,
       enum: ["RESTAURANT", "DRIVER", "CUSTOMER"],
       required: true,
-    }
+    },
   },
   deliveredPhoto: String,
   orderItems: [
@@ -132,6 +132,9 @@ const Order = new Schema({
       productName: String,
       quantity: Number,
       price: Number,
+      productSize: String,
+      productToppings: [],
+      tax: Number,
     },
   ],
   orderItemsCount: {
@@ -179,7 +182,8 @@ const checkStatus = (str) => {
 const ensureLogin = (req, res, next) => {
   if (
     ((req.session.isDriver !== undefined && req.session.isDriver === true) ||
-      (req.session.isRestaurant !== undefined && req.session.isRestaurant === true)) &&
+      (req.session.isRestaurant !== undefined &&
+        req.session.isRestaurant === true)) &&
     req.session.user !== undefined
   ) {
     // if user has logged in allow them to go to desired endpoint
@@ -259,7 +263,7 @@ const createOrderList = async (orderId) => {
   }
 };
 
-
+// For home page
 app.get("/", async (req, res) => {
   try {
     const paneerPizza = await product
@@ -296,6 +300,7 @@ app.get("/Menu", async (req, res) => {
     const menuList = await product.find().lean().exec();
     const toppings = await topping.find().lean().exec();
 
+    // for order form
     if (itemForCart !== null) {
       item = itemForCart;
       itemForCart = null;
@@ -307,16 +312,15 @@ app.get("/Menu", async (req, res) => {
         isCustomer: req.session.isCustomer,
         isCustomer: req.session.isCustomer,
         menuList: menuList,
+        isLoggedIn: req.session.isLoggedIn,
         item,
         toppings,
       });
     }
 
+    // default
     return res.render("menu", {
       layout: "layout",
-      isDriver: req.session.isDriver,
-      isRestaurant: req.session.isRestaurant,
-      isCustomer: req.session.isCustomer,
       menuList: menuList,
     });
   } catch (error) {
@@ -325,7 +329,8 @@ app.get("/Menu", async (req, res) => {
   }
 });
 
-app.get("/Add-to-cart/:id", async (req, res) => {
+// add order from menu
+app.get("/Add-order/:id", async (req, res) => {
   try {
     itemForCart = await product.findOne({ _id: req.params.id }).lean().exec();
     return res.redirect("/Menu");
@@ -335,7 +340,56 @@ app.get("/Add-to-cart/:id", async (req, res) => {
   }
 });
 
+// confirm and receive order
+app.post("/confirm-order", async (req, res) => {
+  try {
+    const newOrder = new order({
+      orderItems: [
+        {
+          productName: req.body.productName,
+          productSize: req.body.size,
+          productToppings: req.body.toppings || [],
+          quantity: 1,
+          price: parseFloat(req.body.subTotal),
+          tax: parseFloat(req.body.tax),
+        },
+      ],
+      orderTotal: parseFloat(req.body.total),
+      customerName: req.body.name,
+      deliveryAddress: req.body.address,
+      phoneNumber: req.body.phone,
+      status: "RECEIVED",
+      orderItemsCount: 1,
+      orderDate: new Date(),
+    });
+
+    newOrder.driver.role = "DRIVER";
+
+    if (req.session.isLoggedIn) {
+      newOrder.customerName = "Placeholder";
+      newOrder.deliveryAddress = "Placeholder";
+      newOrder.phoneNumber = "Placeholder";
+    }
+
+    const savedOrder = await newOrder.save();
+
+    console.log(savedOrder); // You can use this data as needed
+    res.redirect("/Order");
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 // Order History
+/* NOT USING - Aman
+--------
+--------
+--------
+--------
+--------
+--------
+
+*/
 app.get("/Order-history", async (req, res) => {
   try {
     const orderFromDb = await order.findOne({ status: 0 }).lean().exec();
@@ -359,6 +413,16 @@ app.get("/Order-history", async (req, res) => {
     return res.redirect("/");
   }
 });
+
+/* NOT USING - Aman
+--------
+--------
+--------
+--------
+--------
+--------
+
+*/
 
 app.get("/AddOrder/:id", async (req, res) => {
   try {
@@ -395,6 +459,16 @@ app.get("/AddOrder/:id", async (req, res) => {
   }
 });
 
+/* NOT USING - Aman
+--------
+--------
+--------
+--------
+--------
+--------
+
+*/
+
 app.get("/DelItem/:id", async (req, res) => {
   try {
     //find orderDetail
@@ -418,6 +492,16 @@ app.get("/DelItem/:id", async (req, res) => {
   }
 });
 
+/* NOT USING - Aman
+--------
+--------
+--------
+--------
+--------
+--------
+
+*/
+
 app.get("/SubmitOrder/:id", async (req, res) => {
   try {
     const orderFromDb = await order.findOne({ _id: req.params.id });
@@ -440,22 +524,44 @@ app.get("/SubmitOrder/:id", async (req, res) => {
 app.get("/order", async (req, res) => {
   try {
     const allOrders = await order.find().sort({ orderDate: -1 }).lean().exec();
+    let orderHistory = [];
+    let currentOrders = [];
+    let searchResults = [];
+    let showSearchResults = false;
 
-    const orderHistory = allOrders.filter(
-      (order) => order.status === "DELIVERED"
-    );
-    const currentOrders = allOrders.filter(
-      (order) => order.status !== "DELIVERED"
-    );
+    orderHistory = allOrders.filter((order) => order.status === "DELIVERED");
+    currentOrders = allOrders.filter((order) => order.status !== "DELIVERED");
+
+    allOrders.forEach((order) => {
+      if (order.status === "DELIVERED") {
+        order.isDelivered = true;
+      } else {
+        order.isCancelable = true;
+      }
+    });
+
+    // search by customer name
+    if (req.query.customerName) {
+      const customerName = req.query.customerName;
+      searchResults = allOrders.filter((order) => order.customerName === customerName);
+      showSearchResults = true;
+    } else {
+      if (req.query.customerName === "") {
+        searchResults = [];
+        showSearchResults = true;
+      } else {
+        showSearchResults = false;
+      }
+    }
 
     res.render("order", {
       layout: "layout",
-      isDriver: req.session.isDriver,
-      isRestaurant: req.session.isRestaurant,
-      isCustomer: req.session.isCustomer,
+      isLoggedIn: req.session.isLoggedIn,
       allOrders: allOrders,
       orderHistory: orderHistory,
       currentOrders: currentOrders,
+      showSearchResults: showSearchResults,
+      searchResults: searchResults,
     });
   } catch (error) {
     console.log(error);
@@ -482,6 +588,38 @@ app.get("/order/:orderId", async (req, res) => {
   }
 });
 
+app.post("/cancelOrder/:orderId", async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+    const orderFromDb = await order.findOne({ _id: orderId });
+
+    if (orderFromDb === null) {
+      console.log(`Order Id ${orderId} not found`);
+      return res.redirect("/order");
+    }
+
+    if (orderFromDb.status === "RECEIVED" || orderFromDb.status === "READY FOR DELIVERY") {
+      // Cancel the order
+      const updatedValues = {
+        status: "CANCELED",
+      };
+      await orderFromDb.updateOne(updatedValues);
+
+      // Update the isCancelable property
+      orderFromDb.isCancelable = false;
+
+      return res.redirect("/order");
+    } else {
+      // Orders in transit or delivered cannot be canceled
+      console.log(`Order with ID ${orderId} cannot be canceled.`);
+      return res.redirect("/order");
+    }
+  } catch (error) {
+    console.log(error);
+    return res.redirect("/");
+  }
+});
+
 //driver
 app.get("/Driver", ensureLogin, async (req, res) => {
   try {
@@ -494,9 +632,10 @@ app.get("/Driver", ensureLogin, async (req, res) => {
     if (orderFromDb.length !== 0) {
       const orderList = [];
       for (const order of orderFromDb) {
-
-        if (order.status === "READY FOR DELIVERY" || (order.status === "IN TRANSIT" && order.driver._id === req.session.user._id)
-
+        if (
+          order.status === "READY FOR DELIVERY" ||
+          (order.status === "IN TRANSIT" &&
+            order.driver._id === req.session.user._id)
         ) {
           orderList.push(await createOrderList(order._id));
         }
@@ -598,7 +737,7 @@ app.post("/Delivered/:id", upload.single("photo"), async (req, res) => {
 
 app.get('/DriverHistory', async (req, res) => {
   try {
-    const history = await order.find({ 'driver._id': req.session.user._id ,status:"DELIVERED"}).lean().exec();
+    const history = await order.find({ 'driver._id': req.session.user._id, status: "DELIVERED" }).lean().exec();
     return res.render("driverHistory", {
       layout: "layout",
       isDriver: req.session.isDriver,

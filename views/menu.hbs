@@ -8,7 +8,7 @@
           <h3>{{this.product}}</h3>
           <p>{{this.description}}</p>
           <p>{{this.price}}</p>
-          <a class="menu-btn" href="/Add-to-cart/{{this._id}}">Order</a>
+          <a class="menu-btn" href="/Add-order/{{this._id}}">Order</a>
         </figcaption>
       </figure>
     {{/each}}
@@ -18,9 +18,11 @@
     <div class="popup-container" id="popup">
 
       <div class="add-to-order-container">
-        <h3>{{item.product}}</h3>
-        <p><strong>Ingredients:</strong> {{item.ingredients}}</p>
-        <form action="">
+        <form action="/confirm-order" method="post">
+          <input type="hidden" name="productName" value="{{item.product}}" />
+          <h3>{{item.product}}</h3>
+          <p class="menu-ingredients"><strong>Ingredients:</strong>
+            {{item.ingredients}}</p>
           <label> <strong>Choose Size: </strong></label>
           <div class="popup-2-grid">
 
@@ -54,22 +56,45 @@
             {{/each}}
           </div>
 
-          <div class="customer-info">
-            <label for="name"><strong>Name:</strong></label>
-            <input placeholder="Jane Doe" type="text" id="name" name="name" required />
+          {{#unless isLoggedIn}}
+            <div class="customer-info">
+              <label for="name"><strong>Name:</strong></label>
+              <input
+                placeholder="Jane Doe"
+                type="text"
+                id="name"
+                name="name"
+                required
+              />
 
-            <label for="address"><strong>Address:</strong></label>
-            <input placeholder="603 Davenport Rd, Toronto, ON M5R 1L1" type="text" id="address" name="address" required />
+              <label for="address"><strong>Address:</strong></label>
+              <input
+                placeholder="603 Davenport Rd, Toronto, ON M5R 1L1"
+                type="text"
+                id="address"
+                name="address"
+                required
+              />
 
-            <label for="phone"><strong>Phone Number:</strong></label>
-            <input placeholder="437-xxx-xxxx" type="text" id="phone" name="phone" required />
-          </div>
+              <label for="phone"><strong>Phone Number:</strong></label>
+              <input
+                placeholder="437-xxx-xxxx"
+                type="text"
+                id="phone"
+                name="phone"
+                required
+              />
+            </div>
+          {{/unless}}
 
           <div class="popup-3-grid">
 
             <p><strong>Sub Total: <span id="sub-total">0</span></strong></p>
             <p><strong>Tax: <span id="tax">0</span></strong></p>
             <p><strong>Total: <span id="total">0</span></strong></p>
+            <input type="hidden" name="subTotal" id="subTotalInput" value="0" />
+            <input type="hidden" name="tax" id="taxInput" value="0" />
+            <input type="hidden" name="total" id="totalInput" value="0" />
           </div>
           <div class="popup-2-grid">
 

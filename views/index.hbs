@@ -1,2 +1,29 @@
-<main>
+
+<main class="main-index">
+  <h1>Welcome to JCA Pizza</h2>
+
+  <h3>Our Location and Hours</h3>
+<div class="popup-3-grid">
+  <p>603 Davenport Rd, Toronto, ON M5R 1L1</p>
+  <p>Open from 11:00 AM to 2:00 AM</p>
+  <p>Call us at 437-xxx-xxxx</p>
+</div>
+  
+  <h3>Feast on our delicious pizzas!</h3>
+  <div class="menuList">
+    {{!-- Featured menu item --}}
+    {{#each featuredItem}}
+    <figure class="product">
+      <img src="{{this.image_url}}" alt="{{this.product}}" />
+      <figcaption>
+        <h3>{{this.product}}</h3>
+        <p>{{this.description}}</p>
+        <p>{{this.price}}</p>
+        <a class="menu-btn" href="/Add-to-cart/{{this._id}}">Add To Cart</a>
+      </figcaption>
+    </figure>
+    {{/each}}
+  </div>
+  <h3 class="menu-para">Check out more of our products in our <a class="menu-link" href="/menu">Menu</a>.</h3>
+
 </main>

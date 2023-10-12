@@ -25,10 +25,14 @@
             <li><a href="/Driver">Driver</a></li>
             <li><a href="/Logout">LogOut</a></li>
           {{else}}
-            <li><a href="/Menu">Menu</a></li>
+          {{#if isRestaurant}}
             <li><a href="/Order">Order</a></li>
+            <li><a href="/Logout">LogOut</a></li>
+          {{else}}
+            <li><a href="/Menu">Menu</a></li>
             <li><a href="/Login">Login</a></li>
             <li><a href="/Signup">SignUp</a></li>
+          {{/if}}
           {{/if}}
         </ul>
       </nav>

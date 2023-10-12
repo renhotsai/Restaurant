@@ -92,7 +92,7 @@ const orderDetail = mongoose.model("orderDetail", OrderDetail);
 const Order = new Schema({
   status: {
     type: String,
-    enum: ["RECEIVED", "READY FOR DELIVERY", "IN TRANSIT", "DELIVERED"],
+    enum: ["RECEIVED", "READY FOR DELIVERY", "IN TRANSIT", "DELIVERED","CANCELED"],
     required: true,
   },
   customerName: {
@@ -180,8 +180,8 @@ const checkStatus = (str) => {
 const ensureLogin = (req, res, next) => {
   if (
     ((req.session.isDriver !== undefined && req.session.isDriver === true) ||
-      (req.session.isRestaurant !== undefined &&
-        req.session.isRestaurant === true)) &&
+      (req.session.isRestaurant !== undefined && req.session.isRestaurant === true) ||
+      (req.session.isCustomer !== undefined && req.session.isCustomer === true)) &&
     req.session.user !== undefined
   ) {
     // if user has logged in allow them to go to desired endpoint
@@ -274,12 +274,10 @@ app.get("/Menu", async (req, res) => {
   try {
     const menuList = await product.find().lean().exec();
     const toppings = await topping.find().lean().exec();
-
     // for order form
     if (itemForCart !== null) {
       item = itemForCart;
       itemForCart = null;
-
       return res.render("menu", {
         layout: "layout",
         isDriver: req.session.isDriver,
@@ -295,6 +293,9 @@ app.get("/Menu", async (req, res) => {
     return res.render("menu", {
       layout: "layout",
       menuList: menuList,
+      isDriver: req.session.isDriver,
+      isRestaurant: req.session.isRestaurant,
+      isCustomer: req.session.isCustomer,
     });
   } catch (error) {
     console.log(error);
@@ -391,21 +392,29 @@ app.get("/AddOrder/:id", async (req, res) => {
 });
 
 // order
-app.get("/order", async (req, res) => {
+app.get("/order", ensureLogin, async (req, res) => {
   try {
-    const allOrders = await order.find().sort({ orderDate: -1 }).lean().exec();
+    let allOrders;
+    if (req.session.user.role === "CUSTOMER") {
+      allOrders = await order.find({ customerName: req.session.user.name }).sort({ orderDate: -1 }).lean().exec();
+    } else if(req.session.user.role === "RESTAURANT"){
+      allOrders = await order.find().sort({ orderDate: -1 }).lean().exec();
+    }
     let orderHistory = [];
     let currentOrders = [];
     let searchResults = [];
     let showSearchResults = false;
 
-    orderHistory = allOrders.filter((order) => order.status === "DELIVERED");
-    currentOrders = allOrders.filter((order) => order.status !== "DELIVERED");
+    orderHistory = allOrders.filter((order) => order.status === "DELIVERED" || order.status === "CANCELED");
+    currentOrders = allOrders.filter((order) => order.status !== "DELIVERED" && order.status !== "CANCELED");
 
     allOrders.forEach((order) => {
       if (order.status === "DELIVERED") {
         order.isDelivered = true;
-      } else {
+      } else if (order.status === "CANCELED") {
+        order.isCancelable = false;
+      }
+      else {
         order.isCancelable = true;
       }
     });
@@ -481,9 +490,6 @@ app.post("/cancelOrder/:orderId", async (req, res) => {
         status: "CANCELED",
       };
       await orderFromDb.updateOne(updatedValues);
-
-      // Update the isCancelable property
-      orderFromDb.isCancelable = false;
 
       return res.redirect("/order");
     } else {

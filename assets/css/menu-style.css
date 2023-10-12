@@ -4,6 +4,24 @@
   margin: 0 5%;
 }
 
+.main-index {
+  display: grid;
+  justify-content: center;
+
+}
+
+.main-index .menuList {
+  grid-template-columns: repeat(auto-fill, minmax(20em, 1fr));
+}
+
+.res-info{
+  margin: 2em 3em;
+}
+
+.res-info p{
+  margin: 0 2em;
+}
+
 .menuList {
   box-sizing: border-box;
   display: grid;
@@ -184,3 +202,4 @@ td {
 .customer-info input {
   padding: 0.5em;
 }
+

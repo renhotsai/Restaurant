@@ -1,18 +1,32 @@
 <main>
     {{#if orderList}}
-    <div class="order">
-        <p>Order Id: {{orderList.order._id}}</p>
-        <p>Order Time: {{orderList.order.orderDate}}</p>
-        <p>Amount: {{orderList.amount}}</p>
-        <p>TAX: {{orderList.tax}}</p>
-        <p>Total Amount: {{orderList.totalAmount}}</p>
-
-        <form action="/Delivered/{{orderList.order._id}}" method="post" enctype="multipart/form-data">
-            <label for="photo">Upload your Image</label>
-            <input type="file" name="photo" id="photo" />
-            <br>
-            <button type="submit">Delivered</button>
-        </form>
+    <div class="order-card">
+        <div class="order-header">
+            <div class="left-column">
+                <p><strong>Order ID #</strong> {{ orderList.order._id }}</p>
+            </div>
+            <div class="right-column">
+                <p><strong>Status:</strong> <span class="order-status">{{ orderList.order.status }}</span></p>
+            </div>
+        </div>
+        <div class="order-details">
+            <div class="left-column">
+                <p><strong>Customer Name:</strong> {{ orderList.order.customerName }}</p>
+                <p><strong>Delivery Address:</strong> {{ orderList.order.deliveryAddress }}</p>
+                <p><strong>Order Total:</strong> ${{ orderList.order.orderTotal }}</p>
+            </div>
+            <div class="right-column">
+                <form action="/Delivered/{{orderList.order._id}}" method="post" enctype="multipart/form-data"
+                    class="action-buttons">
+                    <label for="photo" class="view-details-button" id="btnPhoto">Delivered Photo
+                        <input type="file" name="photo" id="photo"
+                            style="position: absolute;left: 0;top: 0;opacity: 0;" />
+                    </label>
+                    <img id="displayedImage" hidden="true" style="height:100px;">
+                    <button type="submit" class="view-details-button" hidden="true" id="btnSubmit">Delivered</button>
+                </form>
+            </div>
+        </div>
     </div>
     {{#if ErrorMsg}}
     <p>{{ErrorMsg}}</p>

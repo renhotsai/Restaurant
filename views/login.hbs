@@ -1,13 +1,17 @@
 <main>
     <h1>Login</h1>
+    <form action="/Login" method="post">
+        <div>
+            <label for="userId">User Id: </label>
+            <input type="text" name="userId" id="userId">
+        </div>
+        <div>
+            <label for="password">Password: </label>
+            <input type="password" name="password" id="password">
+        </div>
+        <button type="submit">Login</button>
+    </form>
     {{#if ErrorMsg}}
     <p>{{ErrorMsg}}</p>
     {{/if}}
-    <form action="/Login" method="post">
-        <label for="userId">User Id: </label>
-        <input type="text" name="userId" id="userId">
-        <label for="password">Password: </label>
-        <input type="password" name="password" id="password">
-        <button type="submit">Login</button>
-    </form>
 </main>

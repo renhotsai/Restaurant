@@ -1,48 +1,65 @@
 <main>
     <h1>Driver Delivery</h1>
-    <h2>READY FOR DELIVERY</h2>
+    </div>
     {{#if readyDelivery}}
-    {{#each readyDelivery}}
-    <div class="order">
-        <p>Order Id: {{this.order._id}}</p>
-        <p>Order Time: {{this.order.orderDate}}</p>
-        <p>Amount: {{this.amount}}</p>
-        <p>TAX: {{this.tax}}</p>
-        <p>Total Amount: {{this.totalAmount}}</p>
-
-        {{#if isReady}}
-        <a href="/PickOrder/{{this.order._id}}">IN TRANSIT</a>
-        {{/if}}
-        {{#if isTransit }}
-        <p>Picked Time: {{this.order.pickUpDate}}</p>
-        <a href="/Delivered/{{this.order._id}}">DELIVERED</a>
-        {{/if}}
+    <h2>READY FOR DELIVERY</h2>
+    <div class="order-container">
+        {{#each readyDelivery}}Ｆ
+        <div class="order-card">
+            <div class="order-header">
+                <div class="left-column">
+                    <p><strong>Order ID #</strong> {{ this.order._id }}</p>
+                </div>
+                <div class="right-column">
+                    <p><strong>Status:</strong> <span class="order-status">{{ this.order.status }}</span></p>
+                </div>
+            </div>
+            <div class="order-details">
+                <div class="left-column">
+                    <p><strong>Customer Name:</strong> {{ this.order.customerName }}</p>
+                    <p><strong>Delivery Address:</strong> {{ this.order.deliveryAddress }}</p>
+                    <p><strong>Order Total:</strong> ${{ this.order.orderTotal }}</p>
+                </div>
+                <div class="right-column">
+                    <div class="action-buttons">
+                        <a href="/PickOrder/{{this.order._id}}" class="view-details-button">IN TRANSIT</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{/each}}
     </div>
-    {{/each}}
-    {{else}}
-    <p>No Order</p>
     {{/if}}
-    <hr>
-    <h2>IN TRANSIT</h2>
-    {{#if inTransit}}
-    {{#each inTransit}}
-    <div class="order">
-        <p>Order Id: {{this.order._id}}</p>
-        <p>Order Time: {{this.order.orderDate}}</p>
-        <p>Amount: {{this.amount}}</p>
-        <p>TAX: {{this.tax}}</p>
-        <p>Total Amount: {{this.totalAmount}}</p>
 
-        {{#if isReady}}
-        <a href="/PickOrder/{{this.order._id}}">IN TRANSIT</a>
-        {{/if}}
-        {{#if isTransit }}
-        <p>Picked Time: {{this.order.pickUpDate}}</p>
-        <a href="/Delivered/{{this.order._id}}">DELIVERED</a>
-        {{/if}}
+    <hr>
+
+    {{#if inTransit}}
+    <h2>IN TRANSIT</h2>
+    <div class="order-container">
+        {{#each inTransit}}
+        <div class="order-card">
+            <div class="order-header">
+                <div class="left-column">
+                    <p><strong>Order ID #</strong> {{ this.order._id }}</p>
+                </div>
+                <div class="right-column">
+                    <p><strong>Status:</strong> <span class="order-status">{{ this.order.status }}</span></p>
+                </div>
+            </div>
+            <div class="order-details">
+                <div class="left-column">
+                    <p><strong>Customer Name:</strong> {{ this.order.customerName }}</p>
+                    <p><strong>Delivery Address:</strong> {{ this.order.deliveryAddress }}</p>
+                    <p><strong>Order Total:</strong> ${{ this.order.orderTotal }}</p>
+                </div>
+                <div class="right-column">
+                    <div class="action-buttons">
+                        <a href="/Delivered/{{this.order._id}}" class="view-details-button">DELIVERED</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{/each}}
     </div>
-    {{/each}}
-    {{else}}
-    <p>No Order</p>
     {{/if}}
 </main>

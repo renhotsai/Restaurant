@@ -111,8 +111,16 @@ const Order = new Schema({
     default: Date.now,
   },
   driver: {
+    _id: String,
     name: String,
+    userId: String,
+    password: String,
     licensePlate: String,
+    role: {
+      type: String,
+      enum: ["RESTAURANT", "DRIVER"],
+      required: true,
+    }
   },
   deliveredPhoto: String,
   orderItems: [
@@ -163,8 +171,8 @@ const checkStatus = (str) => {
 //ensureLogin
 const ensureLogin = (req, res, next) => {
   if (
-    req.session.isLoggedIn !== undefined &&
-    req.session.isLoggedIn === true &&
+    req.session.isDriver !== undefined &&
+    req.session.isDriver === true &&
     req.session.user !== undefined
   ) {
     // if user has logged in allow them to go to desired endpoint
@@ -244,6 +252,7 @@ const createOrderList = async (orderId) => {
   }
 };
 
+
 app.get("/", async (req, res) => {
   try {
     const paneerPizza = await product
@@ -270,6 +279,9 @@ app.get("/", async (req, res) => {
     console.log(error);
     return res.redirect("/");
   }
+
+
+
 });
 
 //menu
@@ -284,7 +296,7 @@ app.get("/Menu", async (req, res) => {
 
       return res.render("menu", {
         layout: "layout",
-        isLoggedIn: req.session.isLoggedIn,
+        isDriver: req.session.isDriver,
         menuList: menuList,
         item,
         toppings,
@@ -293,7 +305,7 @@ app.get("/Menu", async (req, res) => {
 
     return res.render("menu", {
       layout: "layout",
-      isLoggedIn: req.session.isLoggedIn,
+      isDriver: req.session.isDriver,
       menuList: menuList,
     });
   } catch (error) {
@@ -427,7 +439,7 @@ app.get("/order", async (req, res) => {
 
     res.render("order", {
       layout: "layout",
-      isLoggedIn: req.session.isLoggedIn,
+      isDriver: req.session.isDriver,
       allOrders: allOrders,
       orderHistory: orderHistory,
       currentOrders: currentOrders,
@@ -446,7 +458,7 @@ app.get("/order/:orderId", async (req, res) => {
 
     res.render("orderDetail", {
       layout: "layout",
-      isLoggedIn: req.session.isLoggedIn,
+      isDriver: req.session.isDriver,
       orderInfo: orderInfo,
     });
   } catch (error) {
@@ -463,13 +475,13 @@ app.get("/Driver", ensureLogin, async (req, res) => {
       .find({ status: { $in: statusesToFind } })
       .lean()
       .exec();
+
     if (orderFromDb.length !== 0) {
       const orderList = [];
       for (const order of orderFromDb) {
-        if (
-          order.status === "READY FOR DELIVERY" ||
-          (order.status === "IN TRANSIT" &&
-            order.driverId === req.session.user._id)
+
+        if (order.status === "READY FOR DELIVERY" || (order.status === "IN TRANSIT" && order.driver._id === req.session.user._id)
+
         ) {
           orderList.push(await createOrderList(order._id));
         }
@@ -485,17 +497,16 @@ app.get("/Driver", ensureLogin, async (req, res) => {
           inTransit.push(order);
         }
       }
-
       return res.render("driver", {
         layout: "layout",
-        isLoggedIn: req.session.isLoggedIn,
+        isDriver: req.session.isDriver,
         readyDelivery: readyDelivery,
         inTransit: inTransit,
       });
     } else {
       return res.render("driver", {
         layout: "layout",
-        isLoggedIn: req.session.isLoggedIn,
+        isDriver: req.session.isDriver,
       });
     }
   } catch (error) {
@@ -511,8 +522,7 @@ app.get("/PickOrder/:id", ensureLogin, async (req, res) => {
     const orderFromDb = await order.findOne({ _id: req.params.id });
     const updatedValues = {
       status: "IN TRANSIT",
-      driverId: req.session.user._id,
-      pickUpDate: new Date(),
+      driver: req.session.user,
     };
     await orderFromDb.updateOne(updatedValues);
     return res.redirect("/Driver");
@@ -522,6 +532,10 @@ app.get("/PickOrder/:id", ensureLogin, async (req, res) => {
   }
 });
 
+
+
+
+
 app.get("/Delivered/:id", ensureLogin, async (req, res) => {
   try {
     const orderId = req.params.id;
@@ -529,6 +543,8 @@ app.get("/Delivered/:id", ensureLogin, async (req, res) => {
     return res.render("delivered", {
       layout: "layout",
       orderList: orderList,
+      isDriver: req.session.isDriver,
+      jsName:"delivered.js",
     });
   } catch (error) {
     console.log(error);
@@ -545,14 +561,14 @@ app.post("/Delivered/:id", upload.single("photo"), async (req, res) => {
         layout: "layout",
         orderList: await createOrderList(orderFromDb._id),
         ErrorMsg: "No Photo.",
+        isDriver: req.session.isDriver,
       });
     }
     const formFile = req.file;
 
     const updatedValues = {
       status: "DELIVERED",
-      deliveryDate: new Date(),
-      deliveryImg: formFile.filename,
+      deliveredPhoto: formFile.filename,
     };
     await orderFromDb.updateOne(updatedValues);
     return res.redirect("/Driver");
@@ -567,40 +583,42 @@ app.post("/Delivered/:id", upload.single("photo"), async (req, res) => {
 app.get("/Login", (req, res) => {
   return res.render("login", {
     layout: "layout",
-    isLoggedIn: req.session.isLoggedIn,
+    isDriver: req.session.isDriver,
     cssName: "login-style.css",
   });
 });
 
 app.post("/Login", async (req, res) => {
   try {
-    if (!req.session.isLoggedIn) {
+    if (!req.session.isDriver) {
       const userId = req.body.userId;
       const password = req.body.password;
       if (checkStatus(userId) || checkStatus(password)) {
         return res.render("login", {
           layout: "layout",
-          isLoggedIn: req.session.isLoggedIn,
+          isDriver: req.session.isDriver,  
           ErrorMsg: "User Id / Password is empty",
+          cssName: "login-style.css",
         });
       }
       const userFromDb = await user.findOne({ userId: userId }).lean().exec();
       if (userFromDb === null) {
         return res.render("login", {
           layout: "layout",
-          isLoggedIn: req.session.isLoggedIn,
+          isDriver: req.session.isDriver,  
           ErrorMsg: "User Id / Password is Error",
+          cssName: "login-style.css",
         });
       }
 
       if (password !== userFromDb.password) {
         return res.render("login", {
           layout: "layout",
-          isLoggedIn: req.session.isLoggedIn,
+          isDriver: req.session.isDriver,  
           ErrorMsg: "User Id / Password is Error",
+          cssName: "login-style.css",
         });
       }
-
       req.session.user = userFromDb;
       if (userFromDb.role === "DRIVER") {
         req.session.isDriver = true;
@@ -608,6 +626,7 @@ app.post("/Login", async (req, res) => {
       if (userFromDb.role === "RESTAURANT") {
         return res.redirect("/Order");
       }
+      // console.log(JSON.stringify(req.session));
       return res.redirect("/Driver");
     }
   } catch (error) {
@@ -619,7 +638,7 @@ app.post("/Login", async (req, res) => {
 app.get("/SignUp", (req, res) => {
   return res.render("signUp", {
     layout: "layout",
-    isLoggedIn: req.session.isLoggedIn,
+    isDriver: req.session.isDriver,
     cssName: "login-style.css",
   });
 });
@@ -638,7 +657,7 @@ app.post("/SignUp", async (req, res) => {
     ) {
       return res.render("signUp", {
         layout: "layout",
-        isLoggedIn: req.session.isLoggedIn,
+        isDriver: req.session.isDriver,
         cssName: "login-style.css",
         ErrorMsg: "User Id / Password is empty",
       });
@@ -647,7 +666,7 @@ app.post("/SignUp", async (req, res) => {
     if (userFromDb.length !== 0) {
       return res.render("signUp", {
         layout: "layout",
-        isLoggedIn: req.session.isLoggedIn,
+        isDriver: req.session.isDriver,
         cssName: "login-style.css",
         ErrorMsg: "UserId has been used.",
       });
@@ -662,7 +681,7 @@ app.post("/SignUp", async (req, res) => {
     await newUser.save();
 
     req.session.user = newUser;
-    req.session.isLoggedIn = true;
+    req.session.isDriver = true;
     return res.redirect("/Driver");
   } catch (error) {
     console.log(error);

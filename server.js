@@ -310,9 +310,7 @@ app.get("/Menu", async (req, res) => {
         isDriver: req.session.isDriver,
         isRestaurant: req.session.isRestaurant,
         isCustomer: req.session.isCustomer,
-        isCustomer: req.session.isCustomer,
         menuList: menuList,
-        isLoggedIn: req.session.isLoggedIn,
         item,
         toppings,
       });
@@ -365,10 +363,10 @@ app.post("/confirm-order", async (req, res) => {
 
     newOrder.driver.role = "DRIVER";
 
-    if (req.session.isLoggedIn) {
-      newOrder.customerName = "Placeholder";
-      newOrder.deliveryAddress = "Placeholder";
-      newOrder.phoneNumber = "Placeholder";
+    if (req.session.isCustomer) {
+      newOrder.customerName = req.session.user.name;
+      newOrder.deliveryAddress = req.session.user.address;
+      newOrder.phoneNumber = req.session.user.phone;
     }
 
     const savedOrder = await newOrder.save();
@@ -379,50 +377,6 @@ app.post("/confirm-order", async (req, res) => {
     console.log(error);
   }
 });
-
-// Order History
-/* NOT USING - Aman
---------
---------
---------
---------
---------
---------
-
-*/
-app.get("/Order-history", async (req, res) => {
-  try {
-    const orderFromDb = await order.findOne({ status: 0 }).lean().exec();
-
-    if (orderFromDb !== null) {
-      const pendingOrder = await createOrderList(orderFromDb._id);
-      return res.render("Order-history", {
-        layout: "layout",
-        isLoggedIn: req.session.isLoggedIn,
-        orderList: pendingOrder,
-      });
-    } else {
-      return res.render("Order-history", {
-        layout: "layout",
-        isLoggedIn: req.session.isLoggedIn,
-        orderList: "",
-      });
-    }
-  } catch (error) {
-    console.log(error);
-    return res.redirect("/");
-  }
-});
-
-/* NOT USING - Aman
---------
---------
---------
---------
---------
---------
-
-*/
 
 app.get("/AddOrder/:id", async (req, res) => {
   try {
@@ -453,67 +407,6 @@ app.get("/AddOrder/:id", async (req, res) => {
       console.log("Item has been added");
     }
     return res.redirect("/Menu");
-  } catch (error) {
-    console.log(error);
-    return res.redirect("/");
-  }
-});
-
-/* NOT USING - Aman
---------
---------
---------
---------
---------
---------
-
-*/
-
-app.get("/DelItem/:id", async (req, res) => {
-  try {
-    //find orderDetail
-    const orderDetailFromDb = await orderDetail.findOne({ _id: req.params.id });
-    const orderId = orderDetailFromDb.orderId;
-    await orderDetailFromDb.deleteOne();
-
-    //if orderDetail is empty remove the order
-    const orderDetails = await orderDetail
-      .find({ orderId: orderId })
-      .lean()
-      .exec();
-    if (orderDetails.length === 0) {
-      const orderFromDb = await order.findOne({ _id: orderId });
-      orderFromDb.deleteOne();
-    }
-    return res.redirect("/Menu");
-  } catch (error) {
-    console.log(error);
-    return res.redirect("/");
-  }
-});
-
-/* NOT USING - Aman
---------
---------
---------
---------
---------
---------
-
-*/
-
-app.get("/SubmitOrder/:id", async (req, res) => {
-  try {
-    const orderFromDb = await order.findOne({ _id: req.params.id });
-    if (orderFromDb === null) {
-      console.log(`Order Id ${req.params.id} not found`);
-    }
-    const updatedValues = {
-      status: 1,
-      orderDate: new Date(),
-    };
-    const result = await orderFromDb.updateOne(updatedValues);
-    return res.redirect("/Order");
   } catch (error) {
     console.log(error);
     return res.redirect("/");
@@ -556,7 +449,9 @@ app.get("/order", async (req, res) => {
 
     res.render("order", {
       layout: "layout",
-      isLoggedIn: req.session.isLoggedIn,
+      isDriver: req.session.isDriver,
+      isRestaurant: req.session.isRestaurant,
+      isCustomer: req.session.isCustomer,
       allOrders: allOrders,
       orderHistory: orderHistory,
       currentOrders: currentOrders,

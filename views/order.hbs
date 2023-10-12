@@ -76,7 +76,7 @@
                             <button type="submit" class="cancel-button">Cancel Order</button>
                         </form>
                         {{/if}}
-                        <button type="submit" class="ready-button">Ready</button>
+                        <a href="/ready-delivery/{{this._id}}" class="ready-button">Ready Delivery</a>
                     </div>
                 </div>
             </div>
@@ -112,7 +112,9 @@
                             <button type="submit" class="cancel-button">Cancel Order</button>
                         </form>
                         {{/if}}
-                        <button type="submit" class="ready-button">Ready</button>
+                        {{#if isRestaurant}}
+                        <a href="/ready-delivery/{{this._id}}" class="ready-button">Ready Delivery</a>
+                        {{/if}}
                     </div>
                 </div>
             </div>

@@ -92,7 +92,7 @@ const orderDetail = mongoose.model("orderDetail", OrderDetail);
 const Order = new Schema({
   status: {
     type: String,
-    enum: ["RECEIVED", "READY FOR DELIVERY", "IN TRANSIT", "DELIVERED", "CANCELED"],
+    enum: ["RECEIVED", "READY FOR DELIVERY", "IN TRANSIT", "DELIVERED","CANCELED"],
     required: true,
   },
   customerName: {
@@ -105,6 +105,7 @@ const Order = new Schema({
   },
   phoneNumber: {
     type: String,
+    required: true,
   },
   orderDate: {
     type: Date,
@@ -337,6 +338,8 @@ app.post("/confirm-order", async (req, res) => {
       orderDate: new Date(),
     });
 
+    newOrder.driver.role = "DRIVER";
+
     if (req.session.isCustomer) {
       newOrder.customerName = req.session.user.name;
       newOrder.deliveryAddress = req.session.user.address;
@@ -345,17 +348,13 @@ app.post("/confirm-order", async (req, res) => {
 
     const savedOrder = await newOrder.save();
 
-    res.redirect(`/order/${savedOrder._id}`);
+    console.log(savedOrder); // You can use this data as needed
+    res.redirect("/Order");
   } catch (error) {
     console.log(error);
   }
 });
-///
-/*
 
-Not Using below - Aman
-*/
-///
 app.get("/AddOrder/:id", async (req, res) => {
   try {
     //find Order
@@ -397,7 +396,7 @@ app.get("/order", ensureLogin, async (req, res) => {
     let allOrders;
     if (req.session.user.role === "CUSTOMER") {
       allOrders = await order.find({ customerName: req.session.user.name }).sort({ orderDate: -1 }).lean().exec();
-    } else if (req.session.user.role === "RESTAURANT") {
+    } else if(req.session.user.role === "RESTAURANT"){
       allOrders = await order.find().sort({ orderDate: -1 }).lean().exec();
     }
     let orderHistory = [];
@@ -411,10 +410,7 @@ app.get("/order", ensureLogin, async (req, res) => {
     allOrders.forEach((order) => {
       if (order.status === "DELIVERED") {
         order.isDelivered = true;
-      } else if (order.status === "CANCELED") {
-        order.isCancelable = false;
-      }
-      else {
+      } else {
         order.isCancelable = true;
       }
     });
@@ -422,9 +418,7 @@ app.get("/order", ensureLogin, async (req, res) => {
     // search by customer name
     if (req.query.customerName) {
       const customerName = req.query.customerName;
-      searchResults = allOrders.filter(
-        (order) => order.customerName === customerName
-      );
+      searchResults = allOrders.filter((order) => order.customerName === customerName);
       showSearchResults = true;
     } else {
       if (req.query.customerName === "") {
@@ -481,15 +475,15 @@ app.post("/cancelOrder/:orderId", async (req, res) => {
       return res.redirect("/order");
     }
 
-    if (
-      orderFromDb.status === "RECEIVED" ||
-      orderFromDb.status === "READY FOR DELIVERY"
-    ) {
+    if (orderFromDb.status === "RECEIVED" || orderFromDb.status === "READY FOR DELIVERY") {
       // Cancel the order
       const updatedValues = {
         status: "CANCELED",
       };
       await orderFromDb.updateOne(updatedValues);
+
+      // Update the isCancelable property
+      orderFromDb.isCancelable = false;
 
       return res.redirect("/order");
     } else {
@@ -505,9 +499,10 @@ app.post("/cancelOrder/:orderId", async (req, res) => {
 
 app.get('/ready-delivery/:id', async (req, res) => {
   try {
-    const orderFromDb = await order.findOne({ _id: id });
+    
+    const orderFromDb = await order.findOne({_id:req.params.id});
     const updatedValues = {
-      status: "READY FOR DELIVERY",
+      status:"READY FOR DELIVERY",
     }
     await orderFromDb.updateOne(updatedValues);
     return res.redirect("/Order")
@@ -631,19 +626,17 @@ app.post("/Delivered/:id", upload.single("photo"), async (req, res) => {
   }
 });
 
-app.get("/DriverHistory", async (req, res) => {
+
+app.get('/DriverHistory', async (req, res) => {
   try {
-    const history = await order
-      .find({ "driver._id": req.session.user._id, status: "DELIVERED" })
-      .lean()
-      .exec();
+    const history = await order.find({ 'driver._id': req.session.user._id, status: "DELIVERED" }).lean().exec();
     return res.render("driverHistory", {
       layout: "layout",
       isDriver: req.session.isDriver,
       isRestaurant: req.session.isRestaurant,
       isCustomer: req.session.isCustomer,
       history: history,
-    });
+    })
   } catch (error) {
     console.log(error);
     return res.redirect("/");
@@ -710,7 +703,7 @@ app.post("/Login", async (req, res) => {
       }
       if (userFromDb.role === "CUSTOMER") {
         req.session.isCustomer = true;
-        return res.redirect("/Menu");
+        return res.redirect("/Menu")
       }
     }
   } catch (error) {
@@ -741,12 +734,7 @@ app.post("/SignUp", async (req, res) => {
     const userType = req.body.user;
     const vehicleModel = req.body.vehicleModel;
     const color = req.body.color;
-    if (
-      checkStatus(userId) ||
-      checkStatus(password) ||
-      checkStatus(name) ||
-      checkStatus(phone)
-    ) {
+    if (checkStatus(userId) || checkStatus(password) || checkStatus(name) || checkStatus(phone)) {
       return res.render("signUp", {
         layout: "layout",
         isDriver: req.session.isDriver,
@@ -757,13 +745,8 @@ app.post("/SignUp", async (req, res) => {
       });
     }
 
-    if (
-      (userType === "CUSTOMER" && checkStatus(address)) ||
-      (userType === "DRIVER" &&
-        (checkStatus(licensePlate) ||
-          checkStatus(vehicleModel) ||
-          checkStatus(color)))
-    ) {
+    if ((userType === "CUSTOMER" && checkStatus(address)) ||
+      (userType === "DRIVER" && (checkStatus(licensePlate) || checkStatus(vehicleModel) || checkStatus(color)))) {
       return res.render("signUp", {
         layout: "layout",
         isDriver: req.session.isDriver,

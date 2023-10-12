@@ -24,7 +24,7 @@ app.use(
 //npm install --save multer
 const multer = require("multer");
 const myStorage = multer.diskStorage({
-  destination: "./assets/deliveredPhotos/",
+  destination: "./assets/image/deliveredPhotos/",
   filename: function (req, file, cb) {
     cb(null, `${req.params.id}${path.extname(file.originalname)}`);
   },
@@ -280,9 +280,6 @@ app.get("/", async (req, res) => {
     console.log(error);
     return res.redirect("/");
   }
-
-
-
 });
 
 //menu

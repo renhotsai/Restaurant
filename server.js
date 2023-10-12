@@ -405,8 +405,17 @@ app.get("/order", ensureLogin, async (req, res) => {
     let searchResults = [];
     let showSearchResults = false;
 
-    orderHistory = allOrders.filter((order) => order.status === "DELIVERED" || order.status === "CANCELED");
-    currentOrders = allOrders.filter((order) => order.status !== "DELIVERED" && order.status !== "CANCELED");
+    allOrders.forEach((order) => {
+      if (order.status === "DELIVERED" || order.status === "CANCELED") {
+        orderHistory.push(order);
+      }
+    });
+
+    allOrders.forEach((order) => {
+      if (order.status !== "DELIVERED" && order.status !== "CANCELED") {
+        currentOrders.push(order);
+      }
+    });
 
     allOrders.forEach((order) => {
       if (order.status === "DELIVERED") {
@@ -422,9 +431,11 @@ app.get("/order", ensureLogin, async (req, res) => {
     // search by customer name
     if (req.query.customerName) {
       const customerName = req.query.customerName;
-      searchResults = allOrders.filter(
-        (order) => order.customerName === customerName
-      );
+      allOrders.forEach((order) => {
+        if (order.customerName === customerName) {
+          searchResults.push(order);
+        }
+      });
       showSearchResults = true;
     } else {
       if (req.query.customerName === "") {

@@ -532,6 +532,14 @@ app.get("/order", async (req, res) => {
     orderHistory = allOrders.filter((order) => order.status === "DELIVERED");
     currentOrders = allOrders.filter((order) => order.status !== "DELIVERED");
 
+    allOrders.forEach((order) => {
+      if (order.status === "DELIVERED") {
+        order.isDelivered = true;
+      } else {
+        order.isCancelable = true;
+      }
+    });
+
     // search by customer name
     if (req.query.customerName) {
       const customerName = req.query.customerName;
@@ -580,7 +588,6 @@ app.get("/order/:orderId", async (req, res) => {
   }
 });
 
-// cancel order
 app.post("/cancelOrder/:orderId", async (req, res) => {
   try {
     const orderId = req.params.orderId;
@@ -591,12 +598,22 @@ app.post("/cancelOrder/:orderId", async (req, res) => {
       return res.redirect("/order");
     }
 
-    const updatedValues = {
-      status: "CANCELED",
-    };
-    await orderFromDb.updateOne(updatedValues);
+    if (orderFromDb.status === "RECEIVED" || orderFromDb.status === "READY FOR DELIVERY") {
+      // Cancel the order
+      const updatedValues = {
+        status: "CANCELED",
+      };
+      await orderFromDb.updateOne(updatedValues);
 
-    return res.redirect("/order");
+      // Update the isCancelable property
+      orderFromDb.isCancelable = false;
+
+      return res.redirect("/order");
+    } else {
+      // Orders in transit or delivered cannot be canceled
+      console.log(`Order with ID ${orderId} cannot be canceled.`);
+      return res.redirect("/order");
+    }
   } catch (error) {
     console.log(error);
     return res.redirect("/");

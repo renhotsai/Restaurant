@@ -30,7 +30,11 @@
             <div class="right-column">
                 <div class="action-buttons">
                     <a href="/order/{{ this._id }}" class="view-details-button">View Details</a>
-                    <button class="cancel-button" data-orderid="{{ this._id }}">Cancel Order</button>
+                    {{#if isCancelable}}
+                    <form action="/cancelOrder/{{ this._id }}" method="POST">
+                        <button type="submit" class="cancel-button">Cancel Order</button>
+                    </form>
+                    {{/if}}
                 </div>
             </div>
         </div>
@@ -66,7 +70,11 @@
                 <div class="right-column">
                     <div class="action-buttons">
                         <a href="/order/{{ this._id }}" class="view-details-button">View Details</a>
-                        <button class="cancel-button" data-orderid="{{ this._id }}">Cancel Order</button>
+                        {{#if isCancelable}}
+                        <form action="/cancelOrder/{{ this._id }}" method="POST">
+                            <button type="submit" class="cancel-button">Cancel Order</button>
+                        </form>
+                        {{/if}}
                     </div>
                 </div>
             </div>
@@ -97,7 +105,11 @@
                 <div class="right-column">
                     <div class="action-buttons">
                         <a href="/order/{{ this._id }}" class="view-details-button">View Details</a>
-                        <button class="cancel-button" data-orderid="{{ this._id }}">Cancel Order</button>
+                        {{#if isCancelable}}
+                        <form action="/cancelOrder/{{ this._id }}" method="POST">
+                            <button type="submit" class="cancel-button">Cancel Order</button>
+                        </form>
+                        {{/if}}
                     </div>
                 </div>
             </div>

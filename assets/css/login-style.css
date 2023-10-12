@@ -1,7 +1,50 @@
+main {
+    height: 75vh;
+}
+
+
 form {
-    display: flex; 
+    border: 1px black solid;
+    border-radius: 2em;
+    display: flex;
     flex-direction: column;
     width: 300px;
-    margin:30vh auto;
+    margin:15vh auto 5vh;
     gap: 10px;
- }
+    padding:3% 5% 1% 5%;
+}
+
+
+div {
+    display: flex;
+}
+
+label {
+    width: 165;
+}
+
+input {
+    margin-left: 10px;
+    width: 100%;
+}
+
+button {
+    background-color: #41c065;
+    color: #202124;
+    display: block;
+    padding: 0.7em ;
+    width: 85%;
+    text-align: center;
+    text-transform: capitalize;
+    font-weight: bold;
+    font-size: 1.3em;
+    border-radius: 2em;
+    margin:10px auto ;
+    text-decoration: none;
+  }
+
+
+  p{
+    display: flex;
+    justify-content: center;
+  }

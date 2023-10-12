@@ -50,6 +50,7 @@ h2 {
 .right-column {
     flex: 1;
     text-align: right;
+    align-self: center;
 }
 
 .order-status {

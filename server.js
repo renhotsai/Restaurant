@@ -442,7 +442,6 @@ app.get("/order", ensureLogin, async (req, res) => {
       }
     }
 
-    console.log(req.session.isRestaurant);
     return res.render("order", {
       layout: "layout",
       isDriver: req.session.isDriver,

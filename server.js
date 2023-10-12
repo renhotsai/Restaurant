@@ -428,14 +428,14 @@ app.get("/SubmitOrder/:id", async (req, res) => {
 // order
 app.get("/order", async (req, res) => {
   try {
-    const allOrders = await order.find().sort({ orderDate: -1 }).lean().exec();
+    const allOrders = await order
+      .find()
+      .sort({ orderDate: -1 })
+      .lean()
+      .exec();
 
-    const orderHistory = allOrders.filter(
-      (order) => order.status === "DELIVERED"
-    );
-    const currentOrders = allOrders.filter(
-      (order) => order.status !== "DELIVERED"
-    );
+    const orderHistory = allOrders.filter((order) => order.status === "DELIVERED");
+    const currentOrders = allOrders.filter((order) => order.status !== "DELIVERED");
 
     res.render("order", {
       layout: "layout",
@@ -443,6 +443,8 @@ app.get("/order", async (req, res) => {
       allOrders: allOrders,
       orderHistory: orderHistory,
       currentOrders: currentOrders,
+      showSearchResults: showSearchResults,
+      searchResults: searchResults,
     });
   } catch (error) {
     console.log(error);
@@ -450,6 +452,7 @@ app.get("/order", async (req, res) => {
   }
 });
 
+// get order detail
 app.get("/order/:orderId", async (req, res) => {
   try {
     const orderId = req.params.orderId;
@@ -466,6 +469,30 @@ app.get("/order/:orderId", async (req, res) => {
     res.redirect("/");
   }
 });
+
+// cancel order
+app.post("/cancelOrder/:orderId", async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+    const orderFromDb = await order.findOne({ _id: orderId });
+
+    if (orderFromDb === null) {
+      console.log(`Order Id ${orderId} not found`);
+      return res.redirect("/order");
+    }
+
+    const updatedValues = {
+      status: "CANCELED",
+    };
+    await orderFromDb.updateOne(updatedValues);
+
+    return res.redirect("/order");
+  } catch (error) {
+    console.log(error);
+    return res.redirect("/");
+  }
+});
+
 
 //driver
 app.get("/Driver", ensureLogin, async (req, res) => {
@@ -543,8 +570,6 @@ app.get("/Delivered/:id", ensureLogin, async (req, res) => {
     return res.render("delivered", {
       layout: "layout",
       orderList: orderList,
-      isDriver: req.session.isDriver,
-      jsName:"delivered.js",
     });
   } catch (error) {
     console.log(error);
@@ -596,7 +621,7 @@ app.post("/Login", async (req, res) => {
       if (checkStatus(userId) || checkStatus(password)) {
         return res.render("login", {
           layout: "layout",
-          isDriver: req.session.isDriver,  
+          isLoggedIn: req.session.isLoggedIn,
           ErrorMsg: "User Id / Password is empty",
           cssName: "login-style.css",
         });
@@ -605,7 +630,7 @@ app.post("/Login", async (req, res) => {
       if (userFromDb === null) {
         return res.render("login", {
           layout: "layout",
-          isDriver: req.session.isDriver,  
+          isLoggedIn: req.session.isLoggedIn,
           ErrorMsg: "User Id / Password is Error",
           cssName: "login-style.css",
         });
@@ -614,7 +639,7 @@ app.post("/Login", async (req, res) => {
       if (password !== userFromDb.password) {
         return res.render("login", {
           layout: "layout",
-          isDriver: req.session.isDriver,  
+          isLoggedIn: req.session.isLoggedIn,
           ErrorMsg: "User Id / Password is Error",
           cssName: "login-style.css",
         });

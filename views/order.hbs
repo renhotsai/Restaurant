@@ -1,5 +1,49 @@
 <body>
     <h1>Order Management</h1>
+    <div class="search-form">
+        <form action="/order" method="GET">
+            <input type="text" name="customerName" placeholder="Search by Customer Name">
+            <button type="submit">Search</button>
+        </form>
+    </div>
+
+    {{#if showSearchResults}}
+    <h2>Search Results</h2>
+    {{#if searchResults.length}}
+    {{#each searchResults}}
+    <div class="order-card">
+        <div class="order-header">
+            <div class="left-column">
+                <p><strong>Order ID #</strong> {{ this._id }}</p>
+            </div>
+            <div class="right-column">
+                <p><strong>Status:</strong> <span class="order-status">{{ this.status }}</span></p>
+            </div>
+        </div>
+        <div class="order-details">
+            <div class="left-column">
+                <p><strong>Customer Name:</strong> {{ this.customerName }}</p>
+                <p><strong>Delivery Address:</strong> {{ this.deliveryAddress }}</p>
+                <p><strong>Order Date:</strong> {{ this.orderDate }}</p>
+                <p><strong>Order Total:</strong> ${{ this.orderTotal }}</p>
+            </div>
+            <div class="right-column">
+                <div class="action-buttons">
+                    <a href="/order/{{ this._id }}" class="view-details-button">View Details</a>
+                    <button class="cancel-button" data-orderid="{{ this._id }}">Cancel Order</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{/each}}
+    {{else}}
+    <div class="order-card">
+        <p><strong>Search Result:</strong> No results found.</p>
+    </div>
+    {{/if}}
+    {{/if}}
+
     <h2>Current Orders</h2>
     <div class="order-container">
         {{#each currentOrders}}

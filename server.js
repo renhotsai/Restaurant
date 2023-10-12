@@ -92,7 +92,7 @@ const orderDetail = mongoose.model("orderDetail", OrderDetail);
 const Order = new Schema({
   status: {
     type: String,
-    enum: ["RECEIVED", "READY FOR DELIVERY", "IN TRANSIT", "DELIVERED"],
+    enum: ["RECEIVED", "READY FOR DELIVERY", "IN TRANSIT", "DELIVERED","CANCELED"],
     required: true,
   },
   customerName: {
@@ -123,7 +123,6 @@ const Order = new Schema({
     role: {
       type: String,
       enum: ["RESTAURANT", "DRIVER", "CUSTOMER"],
-      required: true,
     },
   },
   deliveredPhoto: String,
@@ -404,7 +403,7 @@ app.get("/order", ensureLogin, async (req, res) => {
     let searchResults = [];
     let showSearchResults = false;
 
-    orderHistory = allOrders.filter((order) => order.status === "DELIVERED");
+    orderHistory = allOrders.filter((order) => order.status === "DELIVERED" || order.status === "CANCELED");
     currentOrders = allOrders.filter((order) => order.status !== "DELIVERED");
 
     allOrders.forEach((order) => {

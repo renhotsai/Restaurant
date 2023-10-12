@@ -536,8 +536,6 @@ app.get("/Driver", ensureLogin, async (req, res) => {
 
 app.get("/PickOrder/:id", ensureLogin, async (req, res) => {
   try {
-    console.log(req.params.id);
-
     const orderFromDb = await order.findOne({ _id: req.params.id });
     const updatedValues = {
       status: "IN TRANSIT",
@@ -601,7 +599,6 @@ app.post("/Delivered/:id", upload.single("photo"), async (req, res) => {
 app.get('/DriverHistory', async (req, res) => {
   try {
     const history = await order.find({ 'driver._id': req.session.user._id ,status:"DELIVERED"}).lean().exec();
-    console.log(history);
     return res.render("driverHistory", {
       layout: "layout",
       isDriver: req.session.isDriver,
@@ -674,7 +671,6 @@ app.post("/Login", async (req, res) => {
         return res.redirect("/Driver");
       }
       if (userFromDb.role === "CUSTOMER") {
-        console.log();
         req.session.isCustomer = true;
         return res.redirect("/Menu")
       }
@@ -707,7 +703,6 @@ app.post("/SignUp", async (req, res) => {
     const userType = req.body.user;
     const vehicleModel = req.body.vehicleModel;
     const color = req.body.color;
-    console.log(JSON.stringify(req.body));
     if (checkStatus(userId) || checkStatus(password) || checkStatus(name) || checkStatus(phone)) {
       return res.render("signUp", {
         layout: "layout",

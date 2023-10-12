@@ -1,5 +1,5 @@
 <main class="menu-main">
-  <h1 class="menu-title">Menu</h1>
+  <h1 class="menu-title">Delicious Pizza Menu</h1>
   <div class="menuList">
     {{#each menuList}}
       <figure class="product">
@@ -8,7 +8,7 @@
           <h3>{{this.product}}</h3>
           <p>{{this.description}}</p>
           <p>{{this.price}}</p>
-          <a href="/Add-to-cart/{{this._id}}">Add To Cart</a>
+          <a class="menu-btn" href="/Add-to-cart/{{this._id}}">Add To Cart</a>
         </figcaption>
       </figure>
     {{/each}}
@@ -19,74 +19,60 @@
 
       <div class="add-to-cart-container">
         <h3>{{item.product}}</h3>
-        <p>Ingredients: {{item.ingredients}}</p>
+        <p><strong>Ingredients:</strong> {{item.ingredients}}</p>
         <form action="">
-          <label>Choose Size: </label>
-          {{#each item.prices}}
-            <label>
-              <input type="radio" required name="size" value="{{@key}}" />
-              {{@key}}: ${{this}}
-            </label>
-          {{/each}}
+          <label> <strong>Choose Size: </strong></label>
+          <div class="popup-2-grid">
 
-          <p>Choose Toppings: </p>
-          {{#each toppings}}
-            <label>
-              <input
-                type="checkbox"
-                required
-                name="toppings"
-                value="{{this.name}}"
-              />
-              {{this.name}}: ${{this.price}}
-            </label>
-          {{/each}}
-          <button type="submit">Add to Cart</button>
+            {{#each item.prices}}
+              <label>
+                <input
+                  type="radio"
+                  required
+                  name="size"
+                  data-price="{{this}}"
+                  value="{{@key}}"
+                />
+                {{@key}}: ${{this}}
+              </label>
+            {{/each}}
+          </div>
+
+          <p><strong>Choose Toppings(Max 5): </strong> </p>
+
+          <div class="popup-3-grid">
+            {{#each toppings}}
+              <label>
+                <input
+                  type="checkbox"
+                  name="toppings"
+                  value="{{this.name}}"
+                  data-price="{{this.price}}"
+                />
+                {{this.name}}: ${{this.price}}
+              </label>
+            {{/each}}
+          </div>
+          <div class="popup-3-grid">
+
+            <p><strong>Sub Total: <span id="sub-total">0</span></strong></p>
+            <p><strong>Tax: <span id="tax">0</span></strong></p>
+            <p><strong>Total: <span id="total">0</span></strong></p>
+          </div>
+          <div class="popup-2-grid">
+
+            <button value="{{this._id}}" class="menu-btn" type="submit">Add to
+              Cart</button>
+            <button
+              type="button"
+              id="popup-btn"
+              class="menu-btn"
+            >Cancel</button>
+          </div>
         </form>
 
       </div>
     </div>
   {{/if}}
 
-  {{#if orderList}}
-    <div>
-      <h1>Your Order</h1>
-      <div class="order">
-        <table class="orderDetailList">
-          <tr>
-            <th>Product</th>
-            <th>Price</th>
-            <th>Items</th>
-            <th>Action</th>
-          </tr>
-          {{#each orderList.orderInfos}}
-            <tr>
-              <td>
-                <p>
-                  {{this.productName}}
-                </p>
-              </td>
-              <td>
-                <p>
-                  {{this.productPrice}}
-                </p>
-              </td>
-              <td>
-                <p>
-                  {{this.orderItems}}
-                </p>
-              </td>
-              <td>
-                <a href="/DelItem/{{this.orderDetailId}}">Remove</a>
-              </td>
-            </tr>
-          {{/each}}
-        </table>
-        <p>Amount: {{orderList.amount}}</p>
-        <p>TAX: {{orderList.tax}}</p>
-        <p>Total Amount: {{orderList.totalAmount}}</p>
-        <a href="/SubmitOrder/{{orderList.order._id}}">Submit</a>
-      </div>
-    </div>
-  {{/if}}
 </main>

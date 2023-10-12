@@ -1,5 +1,3 @@
-//npm install express
-//npm install nodemon
 const express = require("express");
 const app = express();
 const HTTP_PORT = process.env.PORT || 8080;
@@ -155,13 +153,12 @@ const user = mongoose.model("user", User);
 
 //check null / undefined / empty string
 const checkStatus = (str) => {
-  if (str === "" ||
-    str === undefined ||
-    str === null) {
+  if (str === "" || str === undefined || str === null) {
     return true;
-  } else { return false; }
-}
-
+  } else {
+    return false;
+  }
+};
 
 //ensureLogin
 const ensureLogin = (req, res, next) => {
@@ -247,18 +244,38 @@ const createOrderList = async (orderId) => {
   }
 };
 
-app.get("/", (req, res) => {
-  return res.render("index", {
-    layout: "layout",
-    isLoggedIn: req.session.isLoggedIn,
-  });
+app.get("/", async (req, res) => {
+  try {
+    const paneerPizza = await product
+      .find({ product: "Paneer Pizza" })
+      .lean()
+      .exec();
+    const supremePizza = await product
+      .find({ product: "Supreme Pizza" })
+      .lean()
+      .exec();
+    const buildYourOwnPizza = await product
+      .find({ product: "Build Your Own Pizza" })
+      .lean()
+      .exec();
+
+    const featuredItem = paneerPizza.concat(supremePizza, buildYourOwnPizza);
+
+    return res.render("index", {
+      layout: "layout",
+      featuredItem: featuredItem,
+      isLoggedIn: req.session.isLoggedIn,
+    });
+  } catch {
+    console.log(error);
+    return res.redirect("/");
+  }
 });
 
 //menu
 app.get("/Menu", async (req, res) => {
   try {
     const menuList = await product.find().lean().exec();
-    const orderFromDb = await order.findOne({ status: 0 }).lean().exec();
     const toppings = await topping.find().lean().exec();
 
     if (itemForCart !== null) {
@@ -274,15 +291,6 @@ app.get("/Menu", async (req, res) => {
       });
     }
 
-    if (orderFromDb !== null) {
-      const pendingOrder = await createOrderList(orderFromDb._id);
-      return res.render("menu", {
-        layout: "layout",
-        isLoggedIn: req.session.isLoggedIn,
-        menuList: menuList,
-        orderList: pendingOrder,
-      });
-    }
     return res.render("menu", {
       layout: "layout",
       isLoggedIn: req.session.isLoggedIn,
@@ -298,6 +306,31 @@ app.get("/Add-to-cart/:id", async (req, res) => {
   try {
     itemForCart = await product.findOne({ _id: req.params.id }).lean().exec();
     return res.redirect("/Menu");
+  } catch (error) {
+    console.log(error);
+    return res.redirect("/");
+  }
+});
+
+// cart
+app.get("/cart", async (req, res) => {
+  try {
+    const orderFromDb = await order.findOne({ status: 0 }).lean().exec();
+
+    if (orderFromDb !== null) {
+      const pendingOrder = await createOrderList(orderFromDb._id);
+      return res.render("cart", {
+        layout: "layout",
+        isLoggedIn: req.session.isLoggedIn,
+        orderList: pendingOrder,
+      });
+    } else {
+      return res.render("cart", {
+        layout: "layout",
+        isLoggedIn: req.session.isLoggedIn,
+        orderList: "",
+      });
+    }
   } catch (error) {
     console.log(error);
     return res.redirect("/");
@@ -435,7 +468,8 @@ app.get("/Driver", ensureLogin, async (req, res) => {
       for (const order of orderFromDb) {
         if (
           order.status === "READY FOR DELIVERY" ||
-          (order.status === "IN TRANSIT" && order.driverId === req.session.user._id)
+          (order.status === "IN TRANSIT" &&
+            order.driverId === req.session.user._id)
         ) {
           orderList.push(await createOrderList(order._id));
         }
@@ -590,15 +624,18 @@ app.get("/SignUp", (req, res) => {
   });
 });
 
-
-
 app.post("/SignUp", async (req, res) => {
   try {
     const userId = req.body.userId;
     const password = req.body.password;
     const name = req.body.name;
     const licensePlate = req.body.licensePlate;
-    if (checkStatus(userId) || checkStatus(password) || checkStatus(name) || checkStatus(licensePlate)) {
+    if (
+      checkStatus(userId) ||
+      checkStatus(password) ||
+      checkStatus(name) ||
+      checkStatus(licensePlate)
+    ) {
       return res.render("signUp", {
         layout: "layout",
         isLoggedIn: req.session.isLoggedIn,
@@ -620,7 +657,7 @@ app.post("/SignUp", async (req, res) => {
       password: password,
       name: name,
       licensePlate: licensePlate,
-      role: "DRIVER"
+      role: "DRIVER",
     });
     await newUser.save();
 

@@ -104,6 +104,10 @@ const Order = new Schema({
     type: String,
     required: true,
   },
+  phoneNumber: {
+    type: String,
+    required: true,
+  },
   orderDate: {
     type: Date,
     default: Date.now,
@@ -169,7 +173,7 @@ const ensureLogin = (req, res, next) => {
     // if user has logged in allow them to go to desired endpoint
     next();
   } else {
-    return res.redirect("/login")
+    return res.redirect("/login");
   }
 };
 
@@ -379,14 +383,14 @@ app.get("/SubmitOrder/:id", async (req, res) => {
 // order
 app.get("/order", async (req, res) => {
   try {
-    const allOrders = await order
-      .find()
-      .sort({ orderDate: -1 })
-      .lean()
-      .exec();
+    const allOrders = await order.find().sort({ orderDate: -1 }).lean().exec();
 
-    const orderHistory = allOrders.filter((order) => order.status === "DELIVERED");
-    const currentOrders = allOrders.filter((order) => order.status !== "DELIVERED");
+    const orderHistory = allOrders.filter(
+      (order) => order.status === "DELIVERED"
+    );
+    const currentOrders = allOrders.filter(
+      (order) => order.status !== "DELIVERED"
+    );
 
     res.render("order", {
       layout: "layout",
@@ -405,10 +409,7 @@ app.get("/order/:orderId", async (req, res) => {
   try {
     const orderId = req.params.orderId;
 
-    const orderInfo = await order
-      .findOne({ _id: orderId })
-      .lean()
-      .exec();
+    const orderInfo = await order.findOne({ _id: orderId }).lean().exec();
 
     res.render("orderDetail", {
       layout: "layout",
@@ -533,7 +534,7 @@ app.get("/Login", (req, res) => {
   return res.render("login", {
     layout: "layout",
     isLoggedIn: req.session.isLoggedIn,
-    cssName: "login-style.css"
+    cssName: "login-style.css",
   });
 });
 

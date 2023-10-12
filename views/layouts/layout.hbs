@@ -1,35 +1,40 @@
 <html lang="en">
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Restaurant</title>
-  <link rel="stylesheet" href="/css/style.css" />
-  <link rel="stylesheet" href="/css/menu-style.css" />
-  <link rel="stylesheet" href="/css/order-style.css" />
-  {{#if cssName}}
-    <link rel="stylesheet" href="/css/{{cssName}}" />
-  {{/if}}
-  <script src="/js/menu.js" defer></script>
-</head>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Restaurant</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/menu-style.css" />
+    <link rel="stylesheet" href="/css/order-style.css" />
+    {{#if cssName}}
+      <link rel="stylesheet" href="/css/{{cssName}}" />
+    {{/if}}
+    <script defer src="/js/menu.js"></script>
+  </head>
 
-<body>
-  <header>
-    <ul>
-      <li><a href="/">Home</a></li>
-      {{#if isDriver}}
-      <li><a href="/Driver">Driver</a></li>
-      <li><a href="/Logout">LogOut</a></li>
-      {{else}}
-      <li><a href="/Menu">Menu</a></li>
-      <li><a href="/Order">Order</a></li>
-      <li><a href="/Login">Login</a></li>
-      <li><a href="/Signup">SignUp</a></li>
-      {{/if}}
-    </ul>
-  </header>
-  {{{body}}}
-  <footer></footer>
-</body>
+  <body>
+    <header>
+      <nav>
+        <ul>
+          <li><a href="/">Home</a></li>
+          {{#if isDriver}}
+            <li><a href="/Driver">Driver</a></li>
+            <li><a href="/Logout">LogOut</a></li>
+          {{else}}
+            <li><a href="/Menu">Menu</a></li>
+            <li><a href="/Order">Order</a></li>
+            <li><a href="/Login">Login</a></li>
+            <li><a href="/Signup">SignUp</a></li>
+          {{/if}}
+        </ul>
+      </nav>
+    </header>
+    {{{body}}}
+    <footer>
+      <p>This website was created for educational purposes, and no copyright
+        infringement is intended.</p>
+    </footer>
+  </body>
 
 </html>

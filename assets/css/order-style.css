@@ -1,0 +1,91 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    padding: 20px 0;
+    margin: 20px 5vw;
+}
+
+h2 {
+    margin: 0px 5vw;
+}
+
+.order-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin: 20px 5vw;
+}
+
+
+.order-card {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin: 10px;
+    box-sizing: border-box;
+    background-color: white;
+    padding: 10px;
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.order-details {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.left-column {
+    flex: 1;
+}
+
+.right-column {
+    flex: 1;
+    text-align: right;
+}
+
+.order-status {
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.order-details p {
+    margin: 5px 0;
+}
+
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    gap: 10px;
+}
+
+.view-details-button,
+.cancel-button {
+    background-color: white;
+    color: black;
+    border: 1px solid rgb(128, 128, 128);
+    border-radius: 10px;
+    padding: 10px 20px;
+    cursor: pointer;
+    text-align: center;
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.cancel-button {
+    background-color: #bcbcbc;
+}
+
+.view-details-button:hover,
+.cancel-button:hover {
+    background-color: green;
+}

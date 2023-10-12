@@ -440,22 +440,36 @@ app.get("/SubmitOrder/:id", async (req, res) => {
 app.get("/order", async (req, res) => {
   try {
     const allOrders = await order.find().sort({ orderDate: -1 }).lean().exec();
+    let orderHistory = [];
+    let currentOrders = [];
+    let searchResults = [];
+    let showSearchResults = false;
 
-    const orderHistory = allOrders.filter(
-      (order) => order.status === "DELIVERED"
-    );
-    const currentOrders = allOrders.filter(
-      (order) => order.status !== "DELIVERED"
-    );
+    orderHistory = allOrders.filter((order) => order.status === "DELIVERED");
+    currentOrders = allOrders.filter((order) => order.status !== "DELIVERED");
+
+    // search by customer name
+    if (req.query.customerName) {
+      const customerName = req.query.customerName;
+      searchResults = allOrders.filter((order) => order.customerName === customerName);
+      showSearchResults = true;
+    } else {
+      if (req.query.customerName === "") {
+        searchResults = [];
+        showSearchResults = true;
+      } else {
+        showSearchResults = false;
+      }
+    }
 
     res.render("order", {
       layout: "layout",
-      isDriver: req.session.isDriver,
-      isRestaurant: req.session.isRestaurant,
-      isCustomer: req.session.isCustomer,
+      isLoggedIn: req.session.isLoggedIn,
       allOrders: allOrders,
       orderHistory: orderHistory,
       currentOrders: currentOrders,
+      showSearchResults: showSearchResults,
+      searchResults: searchResults,
     });
   } catch (error) {
     console.log(error);
@@ -479,6 +493,29 @@ app.get("/order/:orderId", async (req, res) => {
   } catch (error) {
     console.log(error);
     res.redirect("/");
+  }
+});
+
+// cancel order
+app.post("/cancelOrder/:orderId", async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+    const orderFromDb = await order.findOne({ _id: orderId });
+
+    if (orderFromDb === null) {
+      console.log(`Order Id ${orderId} not found`);
+      return res.redirect("/order");
+    }
+
+    const updatedValues = {
+      status: "CANCELED",
+    };
+    await orderFromDb.updateOne(updatedValues);
+
+    return res.redirect("/order");
+  } catch (error) {
+    console.log(error);
+    return res.redirect("/");
   }
 });
 
@@ -598,7 +635,7 @@ app.post("/Delivered/:id", upload.single("photo"), async (req, res) => {
 
 app.get('/DriverHistory', async (req, res) => {
   try {
-    const history = await order.find({ 'driver._id': req.session.user._id ,status:"DELIVERED"}).lean().exec();
+    const history = await order.find({ 'driver._id': req.session.user._id, status: "DELIVERED" }).lean().exec();
     return res.render("driverHistory", {
       layout: "layout",
       isDriver: req.session.isDriver,

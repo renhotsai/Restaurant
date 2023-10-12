@@ -1,7 +1,7 @@
 <body>
 
   <h1>Order Detail</h1>
-  <table>
+  <table class="order-table">
     <tr>
       <th>Customer Name</th>
       <td>{{orderInfo.customerName}}</td>
@@ -39,11 +39,10 @@
       <th>Driver License Plate</th>
       <td>{{orderInfo.driver.licensePlate}}</td>
     </tr>
-    <!-- Add more details as needed -->
   </table>
 
   <h2>Order Items</h2>
-  <table>
+  <table class="order-items-table">
     <thead>
       <tr>
         <th>Product Name</th>
@@ -55,17 +54,17 @@
     <tbody>
       {{#each orderInfo.orderItems}}
 
-        <tr>
-          <td>{{this.productName}}</td>
-          <td>{{this.quantity}}</td>
-          <td>$ {{this.price}}</td>
-          <td>$ {{this.tax}}</td>
-        </tr>
+      <tr>
+        <td>{{this.productName}}</td>
+        <td>{{this.quantity}}</td>
+        <td>$ {{this.price}}</td>
+        <td>$ {{this.tax}}</td>
+      </tr>
 
       {{/each}}
     </tbody>
   </table>
 
-  <a href="/order">Back to order</a>
+  <a href="/order" class="back-link">Back to order</a>
 
 </body>

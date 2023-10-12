@@ -9,9 +9,9 @@ form {
     display: flex;
     flex-direction: column;
     width: 300px;
-    margin:15vh auto 5vh;
+    margin: 15vh auto 5vh;
     gap: 10px;
-    padding:3% 5% 1% 5%;
+    padding: 3% 5% 1% 5%;
 }
 
 
@@ -20,7 +20,7 @@ div {
 }
 
 label {
-    width: 165;
+    width: 200;
 }
 
 input {
@@ -32,19 +32,30 @@ button {
     background-color: #41c065;
     color: #202124;
     display: block;
-    padding: 0.7em ;
+    padding: 0.7em;
     width: 85%;
     text-align: center;
     text-transform: capitalize;
     font-weight: bold;
     font-size: 1.3em;
     border-radius: 2em;
-    margin:10px auto ;
+    margin: 10px auto;
     text-decoration: none;
-  }
+}
 
 
-  p{
+p {
     display: flex;
     justify-content: center;
-  }
+}
+
+
+#userType {
+    margin: 10px;
+    padding: 5px;
+    border-bottom-style: groove;
+}
+
+.driver {
+    display: none;
+}

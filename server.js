@@ -149,6 +149,16 @@ const user = mongoose.model("user", User);
 
 //method
 
+//check null / undefined / empty string
+const checkStatus = (str) => {
+  if (str === "" ||
+    str === undefined ||
+    str === null) {
+    return true;
+  } else { return false; }
+}
+
+
 //ensureLogin
 const ensureLogin = (req, res, next) => {
   if (
@@ -532,12 +542,7 @@ app.post("/Login", async (req, res) => {
     if (!req.session.isLoggedIn) {
       const userId = req.body.userId;
       const password = req.body.password;
-      if (
-        userId === "" ||
-        userId === undefined ||
-        password === "" ||
-        password === undefined
-      ) {
+      if (checkStatus(userId) || checkStatus(password)) {
         return res.render("login", {
           layout: "layout",
           isLoggedIn: req.session.isLoggedIn,
@@ -562,7 +567,12 @@ app.post("/Login", async (req, res) => {
       }
 
       req.session.user = userFromDb;
-      req.session.isLoggedIn = true;
+      if (userFromDb.role === "DRIVER") {
+        req.session.isDriver = true;
+      }
+      if (userFromDb.role === "RESTAURANT") {
+        return res.redirect("/Order");
+      }
       return res.redirect("/Driver");
     }
   } catch (error) {
@@ -579,14 +589,6 @@ app.get("/SignUp", (req, res) => {
   });
 });
 
-const checkStatus = (str) => {
-  if (str === "" ||
-    str === undefined ||
-    str === null) {
-    return true;
-  } else { return false; }
-}
-
 
 
 app.post("/SignUp", async (req, res) => {
@@ -599,6 +601,7 @@ app.post("/SignUp", async (req, res) => {
       return res.render("signUp", {
         layout: "layout",
         isLoggedIn: req.session.isLoggedIn,
+        cssName: "login-style.css",
         ErrorMsg: "User Id / Password is empty",
       });
     }
@@ -607,6 +610,7 @@ app.post("/SignUp", async (req, res) => {
       return res.render("signUp", {
         layout: "layout",
         isLoggedIn: req.session.isLoggedIn,
+        cssName: "login-style.css",
         ErrorMsg: "UserId has been used.",
       });
     }
@@ -614,14 +618,13 @@ app.post("/SignUp", async (req, res) => {
       userId: userId,
       password: password,
       name: name,
-      licensePlate:licensePlate,
+      licensePlate: licensePlate,
       role: "DRIVER"
     });
     await newUser.save();
 
     req.session.user = newUser;
     req.session.isLoggedIn = true;
-
     return res.redirect("/Driver");
   } catch (error) {
     console.log(error);

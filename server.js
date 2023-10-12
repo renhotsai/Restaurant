@@ -425,7 +425,7 @@ app.get("/order/:orderId", async (req, res) => {
 //driver
 app.get("/Driver", ensureLogin, async (req, res) => {
   try {
-    const statusesToFind = [2, 3];
+    const statusesToFind = ["READY FOR DELIVERY", "IN TRANSIT"];
     const orderFromDb = await order
       .find({ status: { $in: statusesToFind } })
       .lean()
@@ -434,8 +434,8 @@ app.get("/Driver", ensureLogin, async (req, res) => {
       const orderList = [];
       for (const order of orderFromDb) {
         if (
-          order.status === 2 ||
-          (order.status === 3 && order.driverId === req.session.user._id)
+          order.status === "READY FOR DELIVERY" ||
+          (order.status === "IN TRANSIT" && order.driverId === req.session.user._id)
         ) {
           orderList.push(await createOrderList(order._id));
         }
@@ -445,7 +445,7 @@ app.get("/Driver", ensureLogin, async (req, res) => {
       const readyDelivery = [];
       const inTransit = [];
       for (const order of orderList) {
-        if (order.order.status === 2) {
+        if (order.order.status === "READY FOR DELIVERY") {
           readyDelivery.push(order);
         } else {
           inTransit.push(order);
@@ -476,7 +476,7 @@ app.get("/PickOrder/:id", ensureLogin, async (req, res) => {
 
     const orderFromDb = await order.findOne({ _id: req.params.id });
     const updatedValues = {
-      status: 3,
+      status: "IN TRANSIT",
       driverId: req.session.user._id,
       pickUpDate: new Date(),
     };
@@ -516,7 +516,7 @@ app.post("/Delivered/:id", upload.single("photo"), async (req, res) => {
     const formFile = req.file;
 
     const updatedValues = {
-      status: 4,
+      status: "DELIVERED",
       deliveryDate: new Date(),
       deliveryImg: formFile.filename,
     };

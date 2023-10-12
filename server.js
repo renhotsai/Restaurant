@@ -120,7 +120,7 @@ const Order = new Schema({
       type: String,
       enum: ["RESTAURANT", "DRIVER"],
       required: true,
-    }
+    },
   },
   deliveredPhoto: String,
   orderItems: [
@@ -128,6 +128,9 @@ const Order = new Schema({
       productName: String,
       quantity: Number,
       price: Number,
+      productSize: String,
+      productToppings: [],
+      tax: Number,
     },
   ],
   orderItemsCount: {
@@ -172,7 +175,8 @@ const checkStatus = (str) => {
 const ensureLogin = (req, res, next) => {
   if (
     ((req.session.isDriver !== undefined && req.session.isDriver === true) ||
-      (req.session.isRestaurant !== undefined && req.session.isRestaurant === true)) &&
+      (req.session.isRestaurant !== undefined &&
+        req.session.isRestaurant === true)) &&
     req.session.user !== undefined
   ) {
     // if user has logged in allow them to go to desired endpoint
@@ -252,7 +256,7 @@ const createOrderList = async (orderId) => {
   }
 };
 
-
+// For home page
 app.get("/", async (req, res) => {
   try {
     const paneerPizza = await product
@@ -280,9 +284,6 @@ app.get("/", async (req, res) => {
     console.log(error);
     return res.redirect("/");
   }
-
-
-
 });
 
 //menu
@@ -291,6 +292,7 @@ app.get("/Menu", async (req, res) => {
     const menuList = await product.find().lean().exec();
     const toppings = await topping.find().lean().exec();
 
+    // for order form
     if (itemForCart !== null) {
       item = itemForCart;
       itemForCart = null;
@@ -300,15 +302,15 @@ app.get("/Menu", async (req, res) => {
         isDriver: req.session.isDriver,
         isRestaurant: req.session.isRestaurant,
         menuList: menuList,
+        isLoggedIn: req.session.isLoggedIn,
         item,
         toppings,
       });
     }
 
+    // default
     return res.render("menu", {
       layout: "layout",
-      isDriver: req.session.isDriver,
-      isRestaurant: req.session.isRestaurant,
       menuList: menuList,
     });
   } catch (error) {
@@ -317,7 +319,8 @@ app.get("/Menu", async (req, res) => {
   }
 });
 
-app.get("/Add-to-cart/:id", async (req, res) => {
+// add order from menu
+app.get("/Add-order/:id", async (req, res) => {
   try {
     itemForCart = await product.findOne({ _id: req.params.id }).lean().exec();
     return res.redirect("/Menu");
@@ -327,7 +330,56 @@ app.get("/Add-to-cart/:id", async (req, res) => {
   }
 });
 
+// confirm and receive order
+app.post("/confirm-order", async (req, res) => {
+  try {
+    const newOrder = new order({
+      orderItems: [
+        {
+          productName: req.body.productName,
+          productSize: req.body.size,
+          productToppings: req.body.toppings || [],
+          quantity: 1,
+          price: parseFloat(req.body.subTotal),
+          tax: parseFloat(req.body.tax),
+        },
+      ],
+      orderTotal: parseFloat(req.body.total),
+      customerName: req.body.name,
+      deliveryAddress: req.body.address,
+      phoneNumber: req.body.phone,
+      status: "RECEIVED",
+      orderItemsCount: 1,
+      orderDate: new Date(),
+    });
+
+    newOrder.driver.role = "DRIVER";
+
+    if (req.session.isLoggedIn) {
+      newOrder.customerName = "Placeholder";
+      newOrder.deliveryAddress = "Placeholder";
+      newOrder.phoneNumber = "Placeholder";
+    }
+
+    const savedOrder = await newOrder.save();
+
+    console.log(savedOrder); // You can use this data as needed
+    res.redirect("/Order");
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 // Order History
+/* NOT USING - Aman
+--------
+--------
+--------
+--------
+--------
+--------
+
+*/
 app.get("/Order-history", async (req, res) => {
   try {
     const orderFromDb = await order.findOne({ status: 0 }).lean().exec();
@@ -351,6 +403,16 @@ app.get("/Order-history", async (req, res) => {
     return res.redirect("/");
   }
 });
+
+/* NOT USING - Aman
+--------
+--------
+--------
+--------
+--------
+--------
+
+*/
 
 app.get("/AddOrder/:id", async (req, res) => {
   try {
@@ -387,6 +449,16 @@ app.get("/AddOrder/:id", async (req, res) => {
   }
 });
 
+/* NOT USING - Aman
+--------
+--------
+--------
+--------
+--------
+--------
+
+*/
+
 app.get("/DelItem/:id", async (req, res) => {
   try {
     //find orderDetail
@@ -409,6 +481,16 @@ app.get("/DelItem/:id", async (req, res) => {
     return res.redirect("/");
   }
 });
+
+/* NOT USING - Aman
+--------
+--------
+--------
+--------
+--------
+--------
+
+*/
 
 app.get("/SubmitOrder/:id", async (req, res) => {
   try {
@@ -484,9 +566,10 @@ app.get("/Driver", ensureLogin, async (req, res) => {
     if (orderFromDb.length !== 0) {
       const orderList = [];
       for (const order of orderFromDb) {
-
-        if (order.status === "READY FOR DELIVERY" || (order.status === "IN TRANSIT" && order.driver._id === req.session.user._id)
-
+        if (
+          order.status === "READY FOR DELIVERY" ||
+          (order.status === "IN TRANSIT" &&
+            order.driver._id === req.session.user._id)
         ) {
           orderList.push(await createOrderList(order._id));
         }
@@ -538,10 +621,6 @@ app.get("/PickOrder/:id", ensureLogin, async (req, res) => {
     return res.redirect("/");
   }
 });
-
-
-
-
 
 app.get("/Delivered/:id", ensureLogin, async (req, res) => {
   try {

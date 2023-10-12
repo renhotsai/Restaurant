@@ -299,12 +299,10 @@ app.get("/Menu", async (req, res) => {
   try {
     const menuList = await product.find().lean().exec();
     const toppings = await topping.find().lean().exec();
-
     // for order form
     if (itemForCart !== null) {
       item = itemForCart;
       itemForCart = null;
-
       return res.render("menu", {
         layout: "layout",
         isDriver: req.session.isDriver,
@@ -320,6 +318,9 @@ app.get("/Menu", async (req, res) => {
     return res.render("menu", {
       layout: "layout",
       menuList: menuList,
+      isDriver: req.session.isDriver,
+      isRestaurant: req.session.isRestaurant,
+      isCustomer: req.session.isCustomer,
     });
   } catch (error) {
     console.log(error);

@@ -182,8 +182,8 @@ const checkStatus = (str) => {
 const ensureLogin = (req, res, next) => {
   if (
     ((req.session.isDriver !== undefined && req.session.isDriver === true) ||
-      (req.session.isRestaurant !== undefined &&
-        req.session.isRestaurant === true)) &&
+      (req.session.isRestaurant !== undefined && req.session.isRestaurant === true) ||
+      (req.session.isCustomer !== undefined && req.session.isCustomer === true)) &&
     req.session.user !== undefined
   ) {
     // if user has logged in allow them to go to desired endpoint
@@ -233,29 +233,6 @@ const createOrderList = async (orderId) => {
         console.log(`Can't Find driver. _id:${orderFromDb.driverId}`);
       }
       orderList.driverName = driverFromDb.name;
-    }
-
-    switch (orderFromDb.status) {
-      case -1:
-        orderList.isCanceled = true;
-        break;
-      case 0:
-        orderList.isInCart = true;
-        break;
-      case 1:
-        orderList.isReceived = true;
-        break;
-      case 2:
-        orderList.isReady = true;
-        break;
-      case 3:
-        orderList.isTransit = true;
-        break;
-      case 4:
-        orderList.isDelivered = true;
-        break;
-      default:
-        break;
     }
     return orderList;
   } catch (error) {
@@ -415,7 +392,7 @@ app.get("/AddOrder/:id", async (req, res) => {
 });
 
 // order
-app.get("/order", async (req, res) => {
+app.get("/order", ensureLogin, async (req, res) => {
   try {
     const allOrders = await order.find().sort({ orderDate: -1 }).lean().exec();
     let orderHistory = [];

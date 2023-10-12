@@ -234,29 +234,6 @@ const createOrderList = async (orderId) => {
       }
       orderList.driverName = driverFromDb.name;
     }
-
-    switch (orderFromDb.status) {
-      case -1:
-        orderList.isCanceled = true;
-        break;
-      case 0:
-        orderList.isInCart = true;
-        break;
-      case 1:
-        orderList.isReceived = true;
-        break;
-      case 2:
-        orderList.isReady = true;
-        break;
-      case 3:
-        orderList.isTransit = true;
-        break;
-      case 4:
-        orderList.isDelivered = true;
-        break;
-      default:
-        break;
-    }
     return orderList;
   } catch (error) {
     console.log(error);
@@ -371,7 +348,6 @@ app.post("/confirm-order", async (req, res) => {
 
     const savedOrder = await newOrder.save();
 
-    console.log(savedOrder); // You can use this data as needed
     res.redirect("/Order");
   } catch (error) {
     console.log(error);

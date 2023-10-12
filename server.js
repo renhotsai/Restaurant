@@ -92,7 +92,7 @@ const orderDetail = mongoose.model("orderDetail", OrderDetail);
 const Order = new Schema({
   status: {
     type: String,
-    enum: ["RECEIVED", "READY FOR DELIVERY", "IN TRANSIT", "DELIVERED","CANCELED"],
+    enum: ["RECEIVED", "READY FOR DELIVERY", "IN TRANSIT", "DELIVERED", "CANCELED"],
     required: true,
   },
   customerName: {
@@ -397,7 +397,7 @@ app.get("/order", ensureLogin, async (req, res) => {
     let allOrders;
     if (req.session.user.role === "CUSTOMER") {
       allOrders = await order.find({ customerName: req.session.user.name }).sort({ orderDate: -1 }).lean().exec();
-    } else if(req.session.user.role === "RESTAURANT"){
+    } else if (req.session.user.role === "RESTAURANT") {
       allOrders = await order.find().sort({ orderDate: -1 }).lean().exec();
     }
     let orderHistory = [];
@@ -497,6 +497,20 @@ app.post("/cancelOrder/:orderId", async (req, res) => {
       console.log(`Order with ID ${orderId} cannot be canceled.`);
       return res.redirect("/order");
     }
+  } catch (error) {
+    console.log(error);
+    return res.redirect("/");
+  }
+});
+
+app.get('/ready-delivery/:id', async (req, res) => {
+  try {
+    const orderFromDb = await order.findOne({ _id: id });
+    const updatedValues = {
+      status: "READY FOR DELIVERY",
+    }
+    await orderFromDb.updateOne(updatedValues);
+    return res.redirect("/Order")
   } catch (error) {
     console.log(error);
     return res.redirect("/");

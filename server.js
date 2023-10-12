@@ -92,7 +92,7 @@ const orderDetail = mongoose.model("orderDetail", OrderDetail);
 const Order = new Schema({
   status: {
     type: String,
-    enum: ["RECEIVED", "READY FOR DELIVERY", "IN TRANSIT", "DELIVERED","CANCELED"],
+    enum: ["RECEIVED", "READY FOR DELIVERY", "IN TRANSIT", "DELIVERED", "CANCELED"],
     required: true,
   },
   customerName: {
@@ -396,7 +396,7 @@ app.get("/order", ensureLogin, async (req, res) => {
     let allOrders;
     if (req.session.user.role === "CUSTOMER") {
       allOrders = await order.find({ customerName: req.session.user.name }).sort({ orderDate: -1 }).lean().exec();
-    } else if(req.session.user.role === "RESTAURANT"){
+    } else if (req.session.user.role === "RESTAURANT") {
       allOrders = await order.find().sort({ orderDate: -1 }).lean().exec();
     }
     let orderHistory = [];
@@ -404,13 +404,22 @@ app.get("/order", ensureLogin, async (req, res) => {
     let searchResults = [];
     let showSearchResults = false;
 
-    orderHistory = allOrders.filter((order) => order.status === "DELIVERED" || order.status === "CANCELED");
-    currentOrders = allOrders.filter((order) => order.status !== "DELIVERED" && order.status !== "CANCELED");
+    allOrders.forEach((order) => {
+      if (order.status === "DELIVERED" || order.status === "CANCELED") {
+        orderHistory.push(order);
+      }
+    });
+
+    allOrders.forEach((order) => {
+      if (order.status !== "DELIVERED" && order.status !== "CANCELED") {
+        currentOrders.push(order);
+      }
+    });
 
     allOrders.forEach((order) => {
       if (order.status === "DELIVERED") {
         order.isDelivered = true;
-      } else {
+      } else if(order.status === "RECEIVED") {
         order.isCancelable = true;
       }
     });
@@ -418,7 +427,11 @@ app.get("/order", ensureLogin, async (req, res) => {
     // search by customer name
     if (req.query.customerName) {
       const customerName = req.query.customerName;
-      searchResults = allOrders.filter((order) => order.customerName === customerName);
+      allOrders.forEach((order) => {
+        if (order.customerName === customerName) {
+          searchResults.push(order);
+        }
+      });
       showSearchResults = true;
     } else {
       if (req.query.customerName === "") {
@@ -429,7 +442,8 @@ app.get("/order", ensureLogin, async (req, res) => {
       }
     }
 
-    res.render("order", {
+    console.log(req.session.isRestaurant);
+    return res.render("order", {
       layout: "layout",
       isDriver: req.session.isDriver,
       isRestaurant: req.session.isRestaurant,
@@ -499,10 +513,10 @@ app.post("/cancelOrder/:orderId", async (req, res) => {
 
 app.get('/ready-delivery/:id', async (req, res) => {
   try {
-    
-    const orderFromDb = await order.findOne({_id:req.params.id});
+
+    const orderFromDb = await order.findOne({ _id: req.params.id });
     const updatedValues = {
-      status:"READY FOR DELIVERY",
+      status: "READY FOR DELIVERY",
     }
     await orderFromDb.updateOne(updatedValues);
     return res.redirect("/Order")

@@ -53,6 +53,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const taxElement = document.getElementById("tax");
     const totalElement = document.getElementById("total");
 
+    const subTotalInput = document.getElementById("subTotalInput");
+    const taxInput = document.getElementById("taxInput");
+    const totalInput = document.getElementById("totalInput");
+
     const sizeRadios = [
       document.querySelector('input[type="radio"][name="size"][value="Small"]'),
       document.querySelector(
@@ -97,6 +101,11 @@ document.addEventListener("DOMContentLoaded", function () {
       subTotalElement.textContent = subTotal.toFixed(2);
       taxElement.textContent = tax.toFixed(2);
       totalElement.textContent = total.toFixed(2);
+
+      // Update the hidden fields with the calculated values
+      subTotalInput.value = subTotal.toFixed(2);
+      taxInput.value = tax.toFixed(2);
+      totalInput.value = total.toFixed(2);
     };
 
     for (let i = 0; i < sizeRadios.length; i++) {
@@ -109,7 +118,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Initialize the total on page load
     calculateTotal();
-
 
     // code before here
   }

@@ -88,6 +88,11 @@
   width: 100%;
 }
 
+.menu-ingredients{
+  max-width: 40em;
+  text-wrap: wrap;
+}
+
 table,
 th,
 td {
@@ -110,8 +115,8 @@ td {
 
 .add-to-order-container {
   position: absolute;
-  min-height: 80vh;
-  max-height: 95vh; 
+  min-height: 70vh;
+  max-height: 93vh; 
   overflow-y: auto; 
   top: 50%;
   left: 50%;

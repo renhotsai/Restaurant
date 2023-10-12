@@ -404,7 +404,7 @@ app.get("/order", ensureLogin, async (req, res) => {
     let showSearchResults = false;
 
     orderHistory = allOrders.filter((order) => order.status === "DELIVERED" || order.status === "CANCELED");
-    currentOrders = allOrders.filter((order) => order.status !== "DELIVERED");
+    currentOrders = allOrders.filter((order) => order.status !== "DELIVERED" && order.status !== "CANCELED");
 
     allOrders.forEach((order) => {
       if (order.status === "DELIVERED") {

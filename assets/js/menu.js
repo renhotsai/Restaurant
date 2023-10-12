@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", function () {
   if (popup) {
     // Prevent clicks inside the popup from closing it
     document
-      .querySelector(".add-to-cart-container")
+      .querySelector(".add-to-order-container")
       .addEventListener("click", function (event) {
         event.stopPropagation();
       });
@@ -110,7 +110,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Initialize the total on page load
     calculateTotal();
 
-    
+
     // code before here
   }
 });

@@ -1,6 +1,6 @@
 .menu-main,
 .main-index,
-.cart-main {
+.Order-history-main {
   margin: 0 5%;
 }
 
@@ -108,8 +108,11 @@ td {
   overflow: hidden;
 }
 
-.add-to-cart-container {
+.add-to-order-container {
   position: absolute;
+  min-height: 80vh;
+  max-height: 95vh; 
+  overflow-y: auto; 
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -140,24 +143,39 @@ td {
   text-align: center;
 }
 
-.main-index h1{
+.main-index h1 {
   margin: 1em 0;
   padding: 0;
 }
 
-.menu-link{
-color: #41c065;
-text-decoration: none;
+.res-info {
+  font-size: 1.1em;
 }
 
-.menu-link:hover{
+.menu-link {
+  color: #41c065;
+  text-decoration: none;
+}
+
+.menu-link:hover {
   text-decoration: underline;
 }
 
-.menu-link:active{
+.menu-link:active {
   color: #389c5d;
 }
 
-.menu-para{
+.menu-para {
   margin-top: 2em;
+}
+
+.customer-info {
+  margin-top: 1em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+
+.customer-info input {
+  padding: 0.5em;
 }

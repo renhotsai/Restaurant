@@ -324,20 +324,20 @@ app.get("/Add-to-cart/:id", async (req, res) => {
   }
 });
 
-// cart
-app.get("/cart", async (req, res) => {
+// Order History
+app.get("/Order-history", async (req, res) => {
   try {
     const orderFromDb = await order.findOne({ status: 0 }).lean().exec();
 
     if (orderFromDb !== null) {
       const pendingOrder = await createOrderList(orderFromDb._id);
-      return res.render("cart", {
+      return res.render("Order-history", {
         layout: "layout",
         isLoggedIn: req.session.isLoggedIn,
         orderList: pendingOrder,
       });
     } else {
-      return res.render("cart", {
+      return res.render("Order-history", {
         layout: "layout",
         isLoggedIn: req.session.isLoggedIn,
         orderList: "",

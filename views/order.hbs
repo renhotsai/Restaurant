@@ -76,7 +76,9 @@
                             <button type="submit" class="cancel-button">Cancel Order</button>
                         </form>
                         {{/if}}
+                        {{#if isRestaurant}}
                         <a href="/ready-delivery/{{this._id}}" class="ready-button">Ready Delivery</a>
+                        {{/if}}
                     </div>
                 </div>
             </div>
